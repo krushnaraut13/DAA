@@ -1,0 +1,3233 @@
+Slip 1==========Write a program to sort a list of n numbers in ascending order using selection sort and 
+                determine the time required to sort the elements . 
+
+#include <stdio.h>
+#include <time.h>
+
+void selectionSort(int arr[], int n) {
+    int i, j, min_idx, temp;
+
+    for (i = 0; i < n - 1; i++) {
+        min_idx = i;
+
+        for (j = i + 1; j < n; j++) {
+            if (arr[j] < arr[min_idx])
+                min_idx = j;
+        }
+
+        // Swap the found minimum with the current element
+        temp = arr[i];
+        arr[i] = arr[min_idx];
+        arr[min_idx] = temp;
+    }
+}
+
+int main() {
+    int n, i;
+    int arr[1000];  // assuming a max of 1000 elements
+    clock_t start, end;
+    double time_taken;
+
+    printf("Enter the number of elements: ");
+    scanf("%d", &n);
+
+    printf("Enter %d elements:\n", n);
+    for (i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    start = clock();  // start timing
+
+    selectionSort(arr, n);
+
+    end = clock();    // end timing
+
+    // Calculate total time taken
+    time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
+
+    printf("\nSorted list in ascending order:\n");
+    for (i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+
+    printf("\nTime taken to sort: %f seconds\n", time_taken);
+
+    return 0;
+}
+
+**** Write a program to sort a given set of elements using the Quick sort method and determine 
+     the time required to sort the elements. Repeat the experiment for different values of n, the 
+     number of elements in the list to be sorted. The elements can be read from a file or can be 
+     generated using the random number generator. 
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define MAX 10000  // Maximum number of elements allowed
+
+// Function to swap two numbers
+void swap(int* a, int* b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+
+// Partition function used in Quick Sort
+int partition(int arr[], int low, int high) {
+    int pivot = arr[high];  // pivot
+    int i = (low - 1);      // Index of smaller element
+
+    for (int j = low; j <= high - 1; j++) {
+        if (arr[j] < pivot) {
+            i++;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+    swap(&arr[i + 1], &arr[high]);
+    return (i + 1);
+}
+
+// Quick Sort function
+void quickSort(int arr[], int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+
+        // Recursively sort elements before and after partition
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+// Function to generate random numbers
+void generateRandomArray(int arr[], int n) {
+    for (int i = 0; i < n; i++)
+        arr[i] = rand() % 10000;  // Random numbers from 0 to 9999
+}
+
+// Function to print array (for small n)
+void printArray(int arr[], int n) {
+    for (int i = 0; i < n; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+
+int main() {
+    int arr[MAX];
+    int n;
+    clock_t start, end;
+    double time_taken;
+
+    printf("Enter the number of elements to sort (e.g., 10, 100, 1000, etc.): ");
+    scanf("%d", &n);
+
+    if (n > MAX) {
+        printf("Error: Maximum limit exceeded.\n");
+        return 1;
+    }
+
+    // Seed random number generator
+    srand(time(0));
+
+    // Generate random numbers
+    generateRandomArray(arr, n);
+
+    printf("\nUnsorted Array (First 20 elements only):\n");
+    for (int i = 0; i < n && i < 20; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+
+    start = clock();  // Start timing
+
+    quickSort(arr, 0, n - 1);
+
+    end = clock();    // End timing
+
+    time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
+
+    printf("\nSorted Array (First 20 elements only):\n");
+    for (int i = 0; i < n && i < 20; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+
+    printf("\nTime taken to sort %d elements using Quick Sort: %f seconds\n", n, time_taken);
+
+    return 0;
+}
+
+Slip2=================Q.1) Write a program to sort n randomly generated elements using Heapsort method. [15 Marks] 
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define MAX 10000  // Maximum number of elements allowed
+
+// Function to heapify a subtree rooted at index i
+void heapify(int arr[], int n, int i) {
+    int largest = i;      // Initialize largest as root
+    int left = 2 * i + 1; // left child
+    int right = 2 * i + 2; // right child
+
+    // If left child is larger than root
+    if (left < n && arr[left] > arr[largest])
+        largest = left;
+
+    // If right child is larger than largest so far
+    if (right < n && arr[right] > arr[largest])
+        largest = right;
+
+    // If largest is not root
+    if (largest != i) {
+        int temp = arr[i];
+        arr[i] = arr[largest];
+        arr[largest] = temp;
+
+        // Recursively heapify the affected sub-tree
+        heapify(arr, n, largest);
+    }
+}
+
+// Heap Sort function
+void heapSort(int arr[], int n) {
+    // Build max heap
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+
+    // Extract elements one by one
+    for (int i = n - 1; i > 0; i--) {
+        // Move current root to end
+        int temp = arr[0];
+        arr[0] = arr[i];
+        arr[i] = temp;
+
+        // call max heapify on the reduced heap
+        heapify(arr, i, 0);
+    }
+}
+
+// Function to generate random numbers
+void generateRandomArray(int arr[], int n) {
+    for (int i = 0; i < n; i++)
+        arr[i] = rand() % 10000;  // Random numbers from 0 to 9999
+}
+
+// Function to print array
+void printArray(int arr[], int n) {
+    for (int i = 0; i < n && i < 20; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+
+int main() {
+    int arr[MAX];
+    int n;
+    clock_t start, end;
+    double time_taken;
+
+    printf("Enter the number of elements to sort: ");
+    scanf("%d", &n);
+
+    if (n > MAX) {
+        printf("Error: Maximum limit exceeded.\n");
+        return 1;
+    }
+
+    srand(time(0));  // Seed the random number generator
+
+    generateRandomArray(arr, n);
+
+    printf("\nUnsorted Array (First 20 elements only):\n");
+    printArray(arr, n);
+
+    start = clock();  // Start timing
+
+    heapSort(arr, n);
+
+    end = clock();    // End timing
+
+    time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
+
+    printf("\nSorted Array (First 20 elements only):\n");
+    printArray(arr, n);
+
+    printf("\nTime taken to sort %d elements using Heap Sort: %f seconds\n", n, time_taken);
+
+    return 0;
+}
+
+*****Q.2) Write a program to implement Strassen’s Matrix multiplication [15 Marks] 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+// Function to add two matrices
+void add(int A[2][2], int B[2][2], int result[2][2]) {
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+            result[i][j] = A[i][j] + B[i][j];
+}
+
+// Function to subtract two matrices
+void subtract(int A[2][2], int B[2][2], int result[2][2]) {
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+            result[i][j] = A[i][j] - B[i][j];
+}
+
+// Strassen's Matrix Multiplication
+void strassen(int A[2][2], int B[2][2], int C[2][2]) {
+    int M1, M2, M3, M4, M5, M6, M7;
+    int a, b, c, d, e, f, g, h;
+
+    a = A[0][0];
+    b = A[0][1];
+    c = A[1][0];
+    d = A[1][1];
+
+    e = B[0][0];
+    f = B[0][1];
+    g = B[1][0];
+    h = B[1][1];
+
+    M1 = (a + d) * (e + h);
+    M2 = (c + d) * e;
+    M3 = a * (f - h);
+    M4 = d * (g - e);
+    M5 = (a + b) * h;
+    M6 = (c - a) * (e + f);
+    M7 = (b - d) * (g + h);
+
+    C[0][0] = M1 + M4 - M5 + M7;
+    C[0][1] = M3 + M5;
+    C[1][0] = M2 + M4;
+    C[1][1] = M1 - M2 + M3 + M6;
+}
+
+// Function to display a 2x2 matrix
+void display(int matrix[2][2]) {
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++)
+            printf("%d ", matrix[i][j]);
+        printf("\n");
+    }
+}
+
+int main() {
+    int A[2][2], B[2][2], C[2][2];
+
+    printf("Enter elements of matrix A (2x2):\n");
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+            scanf("%d", &A[i][j]);
+
+    printf("Enter elements of matrix B (2x2):\n");
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+            scanf("%d", &B[i][j]);
+
+    strassen(A, B, C);
+
+    printf("Resultant matrix C = A x B using Strassen’s Method:\n");
+    display(C);
+
+    return 0;
+}
+
+Slip3========== 
+Q.1) Write a program to sort a given set of elements using the Quick sort method and determine 
+the time required to sort the elements 
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Function to swap two elements
+void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// Partition function for Quick Sort
+int partition(int arr[], int low, int high) {
+    int pivot = arr[high];  // Choosing the last element as pivot
+    int i = low - 1;
+
+    for (int j = low; j < high; j++) {
+        if (arr[j] < pivot) {
+            i++;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+
+    swap(&arr[i + 1], &arr[high]);
+    return (i + 1);
+}
+
+// Quick Sort function
+void quickSort(int arr[], int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+
+        // Recursively sort left and right subarrays
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+// Function to print the array
+void printArray(int arr[], int n) {
+    for (int i = 0; i < n; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+
+int main() {
+    int n, i;
+    clock_t start, end;
+    double time_taken;
+
+    printf("Enter the number of elements: ");
+    scanf("%d", &n);
+
+    int arr[n];
+
+    printf("Enter the elements:\n");
+    for (i = 0; i < n; i++)
+        scanf("%d", &arr[i]);
+
+    printf("\nUnsorted array:\n");
+    printArray(arr, n);
+
+    // Measure time before sorting
+    start = clock();
+
+    quickSort(arr, 0, n - 1);
+
+    // Measure time after sorting
+    end = clock();
+
+    printf("\nSorted array:\n");
+    printArray(arr, n);
+
+    // Calculate time taken
+    time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("\nTime taken to sort %d elements using Quick Sort: %f seconds\n", n, time_taken);
+
+    return 0;
+}
+
+*****
+Q.2) Write a program to find Minimum Cost Spanning Tree of a given undirected graph using 
+Prims algorithm 
+
+#include <stdio.h>
+#include <limits.h>
+
+#define MAX 100
+#define INF 9999
+
+// Function to find the vertex with minimum key value
+int minKey(int key[], int mstSet[], int V) {
+    int min = INF, min_index;
+
+    for (int v = 0; v < V; v++)
+        if (mstSet[v] == 0 && key[v] < min)
+            min = key[v], min_index = v;
+
+    return min_index;
+}
+
+// Function to print the constructed MST
+void printMST(int parent[], int graph[MAX][MAX], int V) {
+    int totalCost = 0;
+    printf("Edge \tWeight\n");
+    for (int i = 1; i < V; i++) {
+        printf("%d - %d \t%d \n", parent[i], i, graph[i][parent[i]]);
+        totalCost += graph[i][parent[i]];
+    }
+    printf("Total Cost of Minimum Spanning Tree: %d\n", totalCost);
+}
+
+// Prim's algorithm function
+void primMST(int graph[MAX][MAX], int V) {
+    int parent[MAX];  // To store the constructed MST
+    int key[MAX];     // Used to pick minimum weight edge
+    int mstSet[MAX];  // To represent set of vertices included in MST
+
+    // Initialize all keys as infinite
+    for (int i = 0; i < V; i++)
+        key[i] = INF, mstSet[i] = 0;
+
+    // Start from the first vertex
+    key[0] = 0;
+    parent[0] = -1;
+
+    // Construct the MST with V vertices
+    for (int count = 0; count < V - 1; count++) {
+        int u = minKey(key, mstSet, V);
+        mstSet[u] = 1;
+
+        for (int v = 0; v < V; v++)
+            if (graph[u][v] && mstSet[v] == 0 && graph[u][v] < key[v])
+                parent[v] = u, key[v] = graph[u][v];
+    }
+
+    // Print the MST
+    printMST(parent, graph, V);
+}
+
+int main() {
+    int V, i, j;
+    int graph[MAX][MAX];
+
+    printf("Enter the number of vertices in the graph: ");
+    scanf("%d", &V);
+
+    printf("Enter the adjacency matrix (use 0 if no edge):\n");
+    for (i = 0; i < V; i++) {
+        for (j = 0; j < V; j++) {
+            scanf("%d", &graph[i][j]);
+            if (graph[i][j] == 0)
+                graph[i][j] = INF;  // Replace 0 with INF for Prim's algorithm
+        }
+    }
+
+    printf("\nMinimum Cost Spanning Tree using Prim's Algorithm:\n");
+    primMST(graph, V);
+
+    return 0;
+}
+
+Slip 4=========Q.1) Write a program to implement a Merge Sort algorithm to sort a given set of elements and 
+               determine the time required to sort the elements
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Function to merge two subarrays
+void merge(int arr[], int left, int mid, int right) {
+    int i, j, k;
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    // Create temp arrays
+    int L[n1], R[n2];
+
+    // Copy data to temp arrays L[] and R[]
+    for (i = 0; i < n1; i++)
+        L[i] = arr[left + i];
+    for (j = 0; j < n2; j++)
+        R[j] = arr[mid + 1 + j];
+
+    // Merge the temp arrays back into arr[]
+    i = 0; j = 0; k = left;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j])
+            arr[k++] = L[i++];
+        else
+            arr[k++] = R[j++];
+    }
+
+    // Copy remaining elements of L[], if any
+    while (i < n1)
+        arr[k++] = L[i++];
+
+    // Copy remaining elements of R[], if any
+    while (j < n2)
+        arr[k++] = R[j++];
+}
+
+// Merge Sort function
+void mergeSort(int arr[], int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+
+        // Sort first and second halves
+        mergeSort(arr, left, mid);
+        mergeSort(arr, mid + 1, right);
+
+        // Merge the sorted halves
+        merge(arr, left, mid, right);
+    }
+}
+
+// Function to print array
+void printArray(int arr[], int size) {
+    for (int i = 0; i < size; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+
+int main() {
+    int n;
+    clock_t start, end;
+    double time_taken;
+
+    printf("Enter number of elements: ");
+    scanf("%d", &n);
+
+    int arr[n];
+    printf("Enter %d elements:\n", n);
+    for (int i = 0; i < n; i++)
+        scanf("%d", &arr[i]);
+
+    printf("\nUnsorted array:\n");
+    printArray(arr, n);
+
+    // Start timing
+    start = clock();
+
+    mergeSort(arr, 0, n - 1);
+
+    // End timing
+    end = clock();
+
+    printf("\nSorted array:\n");
+    printArray(arr, n);
+
+    // Calculate time taken
+    time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("\nTime taken to sort %d elements using Merge Sort: %f seconds\n", n, time_taken);
+
+    return 0;
+}
+
+********Q.2) Write a program to implement Knapsack problems using Greedy method [15 Marks] 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure for an item
+struct Item {
+    int weight;
+    int profit;
+    float ratio;
+};
+
+// Comparator function to sort items by ratio in descending order
+int compare(const void* a, const void* b) {
+    struct Item* item1 = (struct Item*)a;
+    struct Item* item2 = (struct Item*)b;
+    if (item2->ratio > item1->ratio) return 1;
+    else return -1;
+}
+
+int main() {
+    int n;
+    float capacity, totalProfit = 0.0;
+
+    printf("Enter the number of items: ");
+    scanf("%d", &n);
+
+    struct Item items[n];
+
+    printf("Enter profit and weight for each item:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Item %d:\n", i + 1);
+        printf("Profit: ");
+        scanf("%d", &items[i].profit);
+        printf("Weight: ");
+        scanf("%d", &items[i].weight);
+        items[i].ratio = (float)items[i].profit / items[i].weight;
+    }
+
+    printf("Enter the capacity of the knapsack: ");
+    scanf("%f", &capacity);
+
+    // Sort items by value-to-weight ratio in descending order
+    qsort(items, n, sizeof(struct Item), compare);
+
+    printf("\nItems sorted by profit/weight ratio:\n");
+    printf("Item\tProfit\tWeight\tRatio\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t%d\t%.2f\n", i + 1, items[i].profit, items[i].weight, items[i].ratio);
+    }
+
+    float remainingCapacity = capacity;
+
+    printf("\nItems included in the knapsack:\n");
+    for (int i = 0; i < n; i++) {
+        if (items[i].weight <= remainingCapacity) {
+            // Take full item
+            remainingCapacity -= items[i].weight;
+            totalProfit += items[i].profit;
+            printf("Took full item %d\n", i + 1);
+        } else {
+            // Take fractional item
+            float fraction = remainingCapacity / items[i].weight;
+            totalProfit += items[i].profit * fraction;
+            printf("Took %.2f fraction of item %d\n", fraction, i + 1);
+            break; // Knapsack is full
+        }
+    }
+
+    printf("\nMaximum profit = %.2f\n", totalProfit);
+
+    return 0;
+}
+
+Slip 5============Q.1) Write a program for the Implementation of Kruskal’s algorithm to find minimum 
+                    cost spanning tree. 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure to represent a graph edge
+struct Edge {
+    int src, dest, weight;
+};
+
+// Structure to represent a subset for union-find
+struct Subset {
+    int parent;
+    int rank;
+};
+
+// Function to compare two edges, used in qsort
+int compareEdges(const void *a, const void *b) {
+    struct Edge *edge1 = (struct Edge *)a;
+    struct Edge *edge2 = (struct Edge *)b;
+    return edge1->weight - edge2->weight;
+}
+
+// Find function for Union-Find with path compression
+int find(struct Subset subsets[], int i) {
+    if (subsets[i].parent != i)
+        subsets[i].parent = find(subsets, subsets[i].parent); // Path compression
+    return subsets[i].parent;
+}
+
+// Union function for Union-Find with union by rank
+void unionSets(struct Subset subsets[], int x, int y) {
+    int rootX = find(subsets, x);
+    int rootY = find(subsets, y);
+
+    // Union by rank
+    if (subsets[rootX].rank < subsets[rootY].rank)
+        subsets[rootX].parent = rootY;
+    else if (subsets[rootX].rank > subsets[rootY].rank)
+        subsets[rootY].parent = rootX;
+    else {
+        subsets[rootY].parent = rootX;
+        subsets[rootX].rank++;
+    }
+}
+
+// Kruskal’s algorithm to find the Minimum Spanning Tree (MST)
+void kruskal(struct Edge edges[], int V, int E) {
+    struct Edge result[V];  // Store the resultant MST
+    int e = 0;  // Count of edges in MST
+    int i = 0;  // Initial index of sorted edges
+    int j = 0;  // Initial index of result
+
+    // Step 1: Sort all the edges in non-decreasing order of their weight
+    qsort(edges, E, sizeof(edges[0]), compareEdges);
+
+    // Allocate memory for creating V subsets
+    struct Subset *subsets = (struct Subset *)malloc(V * sizeof(struct Subset));
+
+    // Step 2: Create V subsets with single elements
+    for (i = 0; i < V; i++) {
+        subsets[i].parent = i;
+        subsets[i].rank = 0;
+    }
+
+    i = 0;  // Index for sorted edges
+    while (e < V - 1) {
+        // Step 3: Pick the smallest edge. Check if it forms a cycle with the MST formed so far
+        struct Edge nextEdge = edges[i++];
+
+        int x = find(subsets, nextEdge.src);
+        int y = find(subsets, nextEdge.dest);
+
+        // If including this edge does not cause a cycle, include it in the result
+        if (x != y) {
+            result[e++] = nextEdge;
+            unionSets(subsets, x, y);
+        }
+        // Else discard the edge
+    }
+
+    // Print the MST
+    printf("\nEdges in the Minimum Spanning Tree:\n");
+    int minimumCost = 0;
+    for (i = 0; i < e; i++) {
+        printf("%d -- %d == %d\n", result[i].src, result[i].dest, result[i].weight);
+        minimumCost += result[i].weight;
+    }
+
+    printf("\nMinimum Cost of Spanning Tree: %d\n", minimumCost);
+
+    free(subsets);
+}
+
+int main() {
+    int V, E;
+
+    // Read the number of vertices and edges
+    printf("Enter the number of vertices: ");
+    scanf("%d", &V);
+    printf("Enter the number of edges: ");
+    scanf("%d", &E);
+
+    struct Edge *edges = (struct Edge *)malloc(E * sizeof(struct Edge));
+
+    printf("Enter the edges (source, destination, weight):\n");
+    for (int i = 0; i < E; i++) {
+        scanf("%d %d %d", &edges[i].src, &edges[i].dest, &edges[i].weight);
+    }
+
+    // Call Kruskal's algorithm to find MST
+    kruskal(edges, V, E);
+
+    free(edges);
+    return 0;
+}
+
+****** Q.2) Write a program to implement Huffman Code using greedy methods and also calculate the 
+                  best case and worst-case complexity. 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Structure to represent a node in the Huffman Tree
+struct MinHeapNode {
+    char data;
+    unsigned freq;
+    struct MinHeapNode *left, *right;
+};
+
+// Structure to represent a Min Heap
+struct MinHeap {
+    unsigned size;
+    unsigned capacity;
+    struct MinHeapNode** array;
+};
+
+// Function to create a new Min Heap node
+struct MinHeapNode* newNode(char data, unsigned freq) {
+    struct MinHeapNode* temp = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
+    temp->left = temp->right = NULL;
+    temp->data = data;
+    temp->freq = freq;
+    return temp;
+}
+
+// Function to create a Min Heap
+struct MinHeap* createMinHeap(unsigned capacity) {
+    struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
+    minHeap->size = 0;
+    minHeap->capacity = capacity;
+    minHeap->array = (struct MinHeapNode**)malloc(minHeap->capacity * sizeof(struct MinHeapNode*));
+    return minHeap;
+}
+
+// Function to swap two min heap nodes
+void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b) {
+    struct MinHeapNode* t = *a;
+    *a = *b;
+    *b = t;
+}
+
+// Function to heapify the Min Heap
+void minHeapify(struct MinHeap* minHeap, int idx) {
+    int smallest = idx;
+    int left = 2 * idx + 1;
+    int right = 2 * idx + 2;
+
+    if (left < minHeap->size && minHeap->array[left]->freq < minHeap->array[smallest]->freq)
+        smallest = left;
+
+    if (right < minHeap->size && minHeap->array[right]->freq < minHeap->array[smallest]->freq)
+        smallest = right;
+
+    if (smallest != idx) {
+        swapMinHeapNode(&minHeap->array[smallest], &minHeap->array[idx]);
+        minHeapify(minHeap, smallest);
+    }
+}
+
+// Function to build the Min Heap
+void buildMinHeap(struct MinHeap* minHeap) {
+    int n = minHeap->size - 1;
+    for (int i = (n - 1) / 2; i >= 0; i--)
+        minHeapify(minHeap, i);
+}
+
+// Function to check if the size of heap is 1
+int isSizeOne(struct MinHeap* minHeap) {
+    return (minHeap->size == 1);
+}
+
+// Function to extract the minimum value node from the heap
+struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
+    struct MinHeapNode* temp = minHeap->array[0];
+    minHeap->array[0] = minHeap->array[minHeap->size - 1];
+    --minHeap->size;
+    minHeapify(minHeap, 0);
+    return temp;
+}
+
+// Function to insert a node into the Min Heap
+void insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode) {
+    ++minHeap->size;
+    int i = minHeap->size - 1;
+    while (i && minHeapNode->freq < minHeap->array[(i - 1) / 2]->freq) {
+        minHeap->array[i] = minHeap->array[(i - 1) / 2];
+        i = (i - 1) / 2;
+    }
+    minHeap->array[i] = minHeapNode;
+}
+
+// Function to build the Huffman tree
+struct MinHeapNode* buildHuffmanTree(char data[], int freq[], int size) {
+    struct MinHeapNode *left, *right, *top;
+
+    struct MinHeap* minHeap = createMinHeap(size);
+
+    // Build the heap
+    for (int i = 0; i < size; ++i)
+        minHeap->array[i] = newNode(data[i], freq[i]);
+
+    minHeap->size = size;
+    buildMinHeap(minHeap);
+
+    // While the size of heap doesn't become 1
+    while (!isSizeOne(minHeap)) {
+        left = extractMin(minHeap);
+        right = extractMin(minHeap);
+
+        // Create a new internal node with frequency equal to the sum of the two nodes
+        top = newNode('$', left->freq + right->freq);
+
+        top->left = left;
+        top->right = right;
+
+        insertMinHeap(minHeap, top);
+    }
+
+    return extractMin(minHeap);
+}
+
+// Function to print the Huffman codes from the root of the Huffman tree
+void printHuffmanCodes(struct MinHeapNode* root, int arr[], int top) {
+    // If the node is a leaf node, print the data
+    if (root->left == NULL && root->right == NULL) {
+        printf("%c: ", root->data);
+        for (int i = 0; i < top; ++i)
+            printf("%d", arr[i]);
+        printf("\n");
+    }
+
+    // If the left child exists, add 0 to the array and call recursively
+    if (root->left) {
+        arr[top] = 0;
+        printHuffmanCodes(root->left, arr, top + 1);
+    }
+
+    // If the right child exists, add 1 to the array and call recursively
+    if (root->right) {
+        arr[top] = 1;
+        printHuffmanCodes(root->right, arr, top + 1);
+    }
+}
+
+int main() {
+    char data[] = {'a', 'b', 'c', 'd', 'e', 'f'};
+    int freq[] = {5, 9, 12, 13, 16, 45};
+    int size = sizeof(data) / sizeof(data[0]);
+
+    struct MinHeapNode* root = buildHuffmanTree(data, freq, size);
+
+    int arr[100], top = 0;
+    printf("Huffman Codes:\n");
+    printHuffmanCodes(root, arr, top);
+
+    return 0;
+}
+
+
+slip 6====== Q-1) Write a program for the Implementation of Prim’s algorithm to find minimum cost 
+               spanning tree. 
+#include <stdio.h>
+#include <limits.h>
+
+#define V 5 // Number of vertices in the graph
+
+// Function to find the vertex with the minimum key value
+int minKey(int key[], int mstSet[]) {
+    int min = INT_MAX, min_index;
+
+    for (int v = 0; v < V; v++) {
+        if (mstSet[v] == 0 && key[v] < min) {
+            min = key[v];
+            min_index = v;
+        }
+    }
+    return min_index;
+}
+
+// Function to implement Prim's algorithm
+void primMST(int graph[V][V]) {
+    int parent[V];  // Array to store constructed MST
+    int key[V];     // Key values to pick the minimum weight edge
+    int mstSet[V];  // To represent the set of vertices not yet included in MST
+
+    // Initialize all keys as INFINITE and mstSet[] as false
+    for (int i = 0; i < V; i++) {
+        key[i] = INT_MAX;
+        mstSet[i] = 0;
+    }
+
+    // Include the first vertex in the MST
+    key[0] = 0;
+    parent[0] = -1; // First node has no parent
+
+    // The MST will have V vertices
+    for (int count = 0; count < V - 1; count++) {
+        // Pick the minimum key vertex from the set of vertices not yet included in MST
+        int u = minKey(key, mstSet);
+
+        // Add the picked vertex to the MST Set
+        mstSet[u] = 1;
+
+        // Update key values and parent index of the adjacent vertices
+        for (int v = 0; v < V; v++) {
+            // graph[u][v] is non-zero only for adjacent vertices of the picked vertex u
+            // mstSet[v] is false for vertices not yet included in MST
+            // Update the key only if the current edge weight is smaller than the current key value
+            if (graph[u][v] && mstSet[v] == 0 && graph[u][v] < key[v]) {
+                key[v] = graph[u][v];
+                parent[v] = u;
+            }
+        }
+    }
+
+    // Print the constructed MST
+    printf("Edge \tWeight\n");
+    for (int i = 1; i < V; i++) {
+        printf("%d - %d \t%d\n", parent[i], i, graph[i][parent[i]]);
+    }
+}
+
+int main() {
+    // Adjacency matrix representation of the graph
+    int graph[V][V] = {
+        {0, 2, 0, 6, 0},
+        {2, 0, 3, 8, 5},
+        {0, 3, 0, 0, 7},
+        {6, 8, 0, 0, 9},
+        {0, 5, 7, 9, 0}
+    };
+
+    // Run Prim's algorithm to find the MST
+    primMST(graph);
+
+    return 0;
+}
+
+*******Q.2) Write a Program to find only length of Longest Common Subsequence. 
+
+#include <stdio.h>
+#include <string.h>
+
+// Function to find the length of the Longest Common Subsequence (LCS)
+int lcsLength(char X[], char Y[], int m, int n) {
+    // Create a 2D array to store the length of LCS of substrings
+    int L[m+1][n+1];
+
+    // Build the L table in bottom-up manner
+    for (int i = 0; i <= m; i++) {
+        for (int j = 0; j <= n; j++) {
+            // If either string is empty, LCS length is 0
+            if (i == 0 || j == 0) {
+                L[i][j] = 0;
+            }
+            // If the characters match, LCS length increases by 1
+            else if (X[i-1] == Y[j-1]) {
+                L[i][j] = L[i-1][j-1] + 1;
+            }
+            // If characters don't match, LCS length is the maximum of removing one character from either string
+            else {
+                L[i][j] = (L[i-1][j] > L[i][j-1]) ? L[i-1][j] : L[i][j-1];
+            }
+        }
+    }
+
+    // The length of LCS is stored in L[m][n]
+    return L[m][n];
+}
+
+int main() {
+    char X[] = "AGGTAB";  // First string
+    char Y[] = "GXTXAYB"; // Second string
+    
+    int m = strlen(X);  // Length of first string
+    int n = strlen(Y);  // Length of second string
+
+    // Call the function to find the length of LCS
+    int length = lcsLength(X, Y, m, n);
+
+    // Print the length of the LCS
+    printf("Length of Longest Common Subsequence: %d\n", length);
+
+    return 0;
+}
+
+Slip 7========Q-1) Write a program for the Implementation of Dijkstra’s algorithm to find shortest path to 
+                 other vertices 
+#include <stdio.h>
+#include <limits.h>
+
+#define V 9 // Number of vertices in the graph
+
+// Function to find the vertex with the minimum distance value
+int minDistance(int dist[], int sptSet[]) {
+    int min = INT_MAX, min_index;
+
+    for (int v = 0; v < V; v++) {
+        if (sptSet[v] == 0 && dist[v] < min) {
+            min = dist[v];
+            min_index = v;
+        }
+    }
+
+    return min_index;
+}
+
+// Function to implement Dijkstra's algorithm
+void dijkstra(int graph[V][V], int src) {
+    int dist[V];       // Array to store the shortest distance from the source
+    int sptSet[V];     // Array to track vertices whose shortest distance is finalized
+
+    // Initialize all distances as INFINITE and sptSet[] as false
+    for (int i = 0; i < V; i++) {
+        dist[i] = INT_MAX;
+        sptSet[i] = 0;
+    }
+
+    // Distance to the source vertex is 0
+    dist[src] = 0;
+
+    // Find the shortest path for all vertices
+    for (int count = 0; count < V - 1; count++) {
+        // Pick the minimum distance vertex from the set of vertices not yet processed
+        int u = minDistance(dist, sptSet);
+
+        // Mark the picked vertex as processed
+        sptSet[u] = 1;
+
+        // Update dist[] for adjacent vertices of the picked vertex
+        for (int v = 0; v < V; v++) {
+            // Update dist[v] if the current vertex u is not processed and there is an edge from u to v
+            if (graph[u][v] && sptSet[v] == 0 && dist[u] != INT_MAX && dist[u] + graph[u][v] < dist[v]) {
+                dist[v] = dist[u] + graph[u][v];
+            }
+        }
+    }
+
+    // Print the shortest distances
+    printf("Vertex \t Distance from Source\n");
+    for (int i = 0; i < V; i++) {
+        printf("%d \t %d\n", i, dist[i]);
+    }
+}
+
+int main() {
+    // Adjacency matrix representation of the graph
+    int graph[V][V] = {
+        {0, 4, 0, 0, 0, 0, 0, 8, 0},
+        {4, 0, 8, 0, 0, 0, 0, 0, 0},
+        {0, 8, 0, 7, 0, 4, 0, 0, 0},
+        {0, 0, 7, 0, 9, 14, 0, 0, 0},
+        {0, 0, 0, 9, 0, 10, 0, 0, 0},
+        {0, 0, 4, 14, 10, 0, 2, 0, 0},
+        {0, 0, 0, 0, 0, 2, 0, 1, 6},
+        {8, 0, 0, 0, 0, 0, 1, 0, 7},
+        {0, 0, 0, 0, 0, 0, 6, 7, 0}
+    };
+
+    // Source vertex
+    int source = 0;
+
+    // Run Dijkstra's algorithm to find the shortest paths from the source
+    dijkstra(graph, source);
+
+    return 0;
+}
+
+**********Q.3) Write a program for finding Topological sorting for Directed Acyclic Graph (DAG) 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define V 6 // Number of vertices in the graph
+
+// Function to perform DFS and fill the stack for Topological Sort
+void topologicalSortUtil(int graph[V][V], int v, int visited[], int stack[], int *stackIndex) {
+    visited[v] = 1;  // Mark the current node as visited
+
+    // Recur for all the vertices adjacent to this vertex
+    for (int i = 0; i < V; i++) {
+        if (graph[v][i] == 1 && !visited[i]) {
+            topologicalSortUtil(graph, i, visited, stack, stackIndex);
+        }
+    }
+
+    // Push current vertex to stack which stores result
+    stack[*stackIndex] = v;
+    (*stackIndex)++;
+}
+
+// Function to perform Topological Sort
+void topologicalSort(int graph[V][V]) {
+    int visited[V] = {0};  // Array to track visited vertices
+    int stack[V];          // Stack to store topologically sorted elements
+    int stackIndex = 0;    // Index to keep track of stack position
+
+    // Call the recursive helper function to fill the stack
+    for (int i = 0; i < V; i++) {
+        if (!visited[i]) {
+            topologicalSortUtil(graph, i, visited, stack, &stackIndex);
+        }
+    }
+
+    // Print the topologically sorted vertices
+    printf("Topological Sort of the given DAG:\n");
+    for (int i = stackIndex - 1; i >= 0; i--) {
+        printf("%d ", stack[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    // Adjacency matrix representation of the DAG
+    int graph[V][V] = {
+        {0, 1, 0, 0, 0, 0},
+        {0, 0, 1, 0, 0, 0},
+        {0, 0, 0, 1, 0, 0},
+        {0, 0, 0, 0, 1, 0},
+        {0, 0, 0, 0, 0, 1},
+        {0, 0, 0, 0, 0, 0}
+    };
+
+    // Perform Topological Sort
+    topologicalSort(graph);
+
+    return 0;
+}
+
+SLip 8=========Q.1) Write a program to implement Fractional Knapsack problems using Greedy Method 
+
+
+#include <stdio.h>
+
+// Structure to represent an item
+struct Item {
+    int value;
+    int weight;
+    double ratio;  // Value per unit weight
+};
+
+// Function to compare two items based on their value/weight ratio
+int compare(const void *a, const void *b) {
+    struct Item *item1 = (struct Item*)a;
+    struct Item *item2 = (struct Item*)b;
+    if (item1->ratio > item2->ratio) return -1;
+    if (item1->ratio < item2->ratio) return 1;
+    return 0;
+}
+
+// Function to solve Fractional Knapsack problem
+double fractionalKnapsack(int W, struct Item items[], int n) {
+    // Sort items by value/weight ratio in decreasing order
+    qsort(items, n, sizeof(struct Item), compare);
+
+    double totalValue = 0.0;  // To store the total value in the knapsack
+
+    for (int i = 0; i < n; i++) {
+        if (items[i].weight <= W) {
+            // Take the whole item
+            W -= items[i].weight;
+            totalValue += items[i].value;
+        } else {
+            // Take the fraction of the item
+            totalValue += items[i].value * ((double)W / items[i].weight);
+            break;
+        }
+    }
+
+    return totalValue;
+}
+
+int main() {
+    int W = 50;  // Maximum weight of the knapsack
+    struct Item items[] = {
+        {60, 10, 0},  // value = 60, weight = 10
+        {100, 20, 0}, // value = 100, weight = 20
+        {120, 30, 0}  // value = 120, weight = 30
+    };
+    int n = sizeof(items) / sizeof(items[0]);
+
+    // Calculate value per unit weight for each item
+    for (int i = 0; i < n; i++) {
+        items[i].ratio = (double)items[i].value / items[i].weight;
+    }
+
+    // Solve the Fractional Knapsack problem
+    double maxValue = fractionalKnapsack(W, items, n);
+
+    // Print the maximum value that can be obtained
+    printf("Maximum value in Knapsack = %.2f\n", maxValue);
+
+    return 0;
+}
+
+*******Q.2) Write Program to implement Traveling Salesman Problem using nearest neighbor 
+              algorithm 
+
+#include <stdio.h>
+#include <limits.h>
+
+#define V 4 // Number of cities
+
+// Function to find the nearest unvisited city
+int nearestNeighbor(int dist[V][V], int visited[], int currentCity) {
+    int minDist = INT_MAX;
+    int nearestCity = -1;
+
+    for (int i = 0; i < V; i++) {
+        if (!visited[i] && dist[currentCity][i] < minDist) {
+            minDist = dist[currentCity][i];
+            nearestCity = i;
+        }
+    }
+    return nearestCity;
+}
+
+// Function to implement the Nearest Neighbor algorithm for TSP
+void tspNearestNeighbor(int dist[V][V], int startCity) {
+    int visited[V] = {0};  // Array to keep track of visited cities
+    int totalDistance = 0; // Variable to store the total distance of the tour
+
+    int currentCity = startCity;
+    visited[currentCity] = 1; // Mark the starting city as visited
+    printf("Tour order: %d -> ", currentCity);
+
+    // Visit all cities
+    for (int i = 1; i < V; i++) {
+        int nextCity = nearestNeighbor(dist, visited, currentCity);
+        visited[nextCity] = 1; // Mark the next city as visited
+        totalDistance += dist[currentCity][nextCity];
+        printf("%d -> ", nextCity);
+        currentCity = nextCity;
+    }
+
+    // Return to the starting city
+    totalDistance += dist[currentCity][startCity];
+    printf("%d\n", startCity);
+    printf("Total Distance: %d\n", totalDistance);
+}
+
+int main() {
+    // Distance matrix for cities (graph)
+    int dist[V][V] = {
+        {0, 10, 15, 20},  // Distances from city 0
+        {10, 0, 35, 25},  // Distances from city 1
+        {15, 35, 0, 30},  // Distances from city 2
+        {20, 25, 30, 0}   // Distances from city 3
+    };
+
+    int startCity = 0;  // Start from city 0
+    tspNearestNeighbor(dist, startCity);
+
+    return 0;
+}
+
+Slip 10============= Q.1) Write a program to implement optimal binary search tree and also calculate the best-case 
+                       complexity. 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_TREE_HT 100
+
+// Structure for a Huffman tree node
+struct MinHeapNode {
+    char data;            // Character
+    unsigned freq;        // Frequency of the character
+    struct MinHeapNode *left, *right;  // Left and right children
+};
+
+// Structure for the min heap
+struct MinHeap {
+    unsigned size;
+    unsigned capacity;
+    struct MinHeapNode** array;
+};
+
+// Function to create a new min heap node
+struct MinHeapNode* newMinHeapNode(char data, unsigned freq) {
+    struct MinHeapNode* temp = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
+    temp->left = temp->right = NULL;
+    temp->data = data;
+    temp->freq = freq;
+    return temp;
+}
+
+// Function to create a min heap
+struct MinHeap* createMinHeap(unsigned capacity) {
+    struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
+    minHeap->size = 0;
+    minHeap->capacity = capacity;
+    minHeap->array = (struct MinHeapNode**)malloc(minHeap->capacity * sizeof(struct MinHeapNode*));
+    return minHeap;
+}
+
+// Function to swap two min heap nodes
+void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b) {
+    struct MinHeapNode* temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// Function to heapify the min heap
+void minHeapify(struct MinHeap* minHeap, int idx) {
+    int smallest = idx;
+    int left = 2 * idx + 1;
+    int right = 2 * idx + 2;
+
+    if (left < minHeap->size && minHeap->array[left]->freq < minHeap->array[smallest]->freq) {
+        smallest = left;
+    }
+
+    if (right < minHeap->size && minHeap->array[right]->freq < minHeap->array[smallest]->freq) {
+        smallest = right;
+    }
+
+    if (smallest != idx) {
+        swapMinHeapNode(&minHeap->array[smallest], &minHeap->array[idx]);
+        minHeapify(minHeap, smallest);
+    }
+}
+
+// Function to check if the size of the heap is 1
+int isSizeOne(struct MinHeap* minHeap) {
+    return (minHeap->size == 1);
+}
+
+// Function to extract the minimum node from the heap
+struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
+    struct MinHeapNode* temp = minHeap->array[0];
+    minHeap->array[0] = minHeap->array[minHeap->size - 1];
+    --minHeap->size;
+    minHeapify(minHeap, 0);
+    return temp;
+}
+
+// Function to insert a new node to the heap
+void insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode) {
+    ++minHeap->size;
+    int i = minHeap->size - 1;
+    while (i && minHeapNode->freq < minHeap->array[(i - 1) / 2]->freq) {
+        minHeap->array[i] = minHeap->array[(i - 1) / 2];
+        i = (i - 1) / 2;
+    }
+    minHeap->array[i] = minHeapNode;
+}
+
+// Function to build the min heap
+void buildMinHeap(struct MinHeap* minHeap) {
+    int n = minHeap->size - 1;
+    for (int i = (n - 1) / 2; i >= 0; --i) {
+        minHeapify(minHeap, i);
+    }
+}
+
+// Function to print the Huffman codes by traversing the tree
+void printCodes(struct MinHeapNode* root, int arr[], int top) {
+    if (root->left) {
+        arr[top] = 0;
+        printCodes(root->left, arr, top + 1);
+    }
+
+    if (root->right) {
+        arr[top] = 1;
+        printCodes(root->right, arr, top + 1);
+    }
+
+    if (!root->left && !root->right) {
+        printf("%c: ", root->data);
+        for (int i = 0; i < top; ++i) {
+            printf("%d", arr[i]);
+        }
+        printf("\n");
+    }
+}
+
+// Function to build the Huffman tree
+struct MinHeapNode* buildHuffmanTree(char data[], int freq[], int size) {
+    struct MinHeapNode *left, *right, *top;
+
+    struct MinHeap* minHeap = createMinHeap(size);
+
+    for (int i = 0; i < size; ++i) {
+        minHeap->array[i] = newMinHeapNode(data[i], freq[i]);
+    }
+    minHeap->size = size;
+    buildMinHeap(minHeap);
+
+    while (!isSizeOne(minHeap)) {
+        left = extractMin(minHeap);
+        right = extractMin(minHeap);
+
+        top = newMinHeapNode('$', left->freq + right->freq);
+        top->left = left;
+        top->right = right;
+
+        insertMinHeap(minHeap, top);
+    }
+
+    return extractMin(minHeap);
+}
+
+// Main function to test the Huffman Coding
+int main() {
+    char data[] = {'a', 'b', 'c', 'd', 'e', 'f'};
+    int freq[] = {5, 9, 12, 13, 16, 45};
+    int size = sizeof(data) / sizeof(data[0]);
+
+    struct MinHeapNode* root = buildHuffmanTree(data, freq, size);
+
+    int arr[MAX_TREE_HT], top = 0;
+    printf("Huffman Codes:\n");
+    printCodes(root, arr, top);
+
+    return 0;
+}
+*******Q.2) Write a program to implement Sum of Subset by Backtracking [15 Marks] 
+
+#include <stdio.h>
+
+#define N 4  // Size of the chessboard (4x4)
+
+// Function to print the chessboard
+void printSolution(int board[N][N]) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            printf("%d ", board[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+// Function to check if a queen can be placed on board[row][col]
+int isSafe(int board[N][N], int row, int col) {
+    // Check this column on upper side
+    for (int i = 0; i < row; i++) {
+        if (board[i][col] == 1) {
+            return 0;
+        }
+    }
+
+    // Check upper left diagonal
+    for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) {
+        if (board[i][j] == 1) {
+            return 0;
+        }
+    }
+
+    // Check upper right diagonal
+    for (int i = row, j = col; i >= 0 && j < N; i--, j++) {
+        if (board[i][j] == 1) {
+            return 0;
+        }
+    }
+
+    return 1; // If it's safe to place the queen
+}
+
+// Backtracking function to solve the N Queens problem
+int solveNQueens(int board[N][N], int row) {
+    // If all queens are placed
+    if (row >= N) {
+        return 1;
+    }
+
+    // Consider this row and try all columns one by one
+    for (int col = 0; col < N; col++) {
+        // Check if it's safe to place the queen at [row][col]
+        if (isSafe(board, row, col)) {
+            // Place the queen on board[row][col]
+            board[row][col] = 1;
+
+            // Recur to place the rest of the queens
+            if (solveNQueens(board, row + 1)) {
+                return 1;
+            }
+
+            // If placing queen in [row][col] doesn't lead to a solution, backtrack
+            board[row][col] = 0;
+        }
+    }
+
+    // If the queen cannot be placed in any column in this row, return false
+    return 0;
+}
+
+int main() {
+    int board[N][N] = {0}; // Initialize the board with 0 (no queens placed)
+
+    if (solveNQueens(board, 0)) {
+        printf("Solution to the 4 Queens problem:\n");
+        printSolution(board);  // Print the board configuration
+    } else {
+        printf("Solution does not exist.\n");
+    }
+
+    return 0;
+}
+
+Slip 11============== #include <stdio.h>Q.1) Write a program to implement Huffman Code using greedy methods [15 Marks] 
+
+#include <stdlib.h>
+
+#define MAX_VERTICES 10
+
+// Graph structure
+struct Graph {
+    int vertices;
+    int adj[MAX_VERTICES][MAX_VERTICES]; // Adjacency matrix
+};
+
+// Function to initialize the graph
+void initGraph(struct Graph* graph, int vertices) {
+    graph->vertices = vertices;
+    for (int i = 0; i < vertices; i++) {
+        for (int j = 0; j < vertices; j++) {
+            graph->adj[i][j] = 0;  // Initialize all edges to 0 (no edge)
+        }
+    }
+}
+
+// Function for DFS traversal
+void DFS(struct Graph* graph, int startVertex, int visited[]) {
+    // Mark the current node as visited and print it
+    visited[startVertex] = 1;
+    printf("%d ", startVertex);
+
+    // Recur for all the vertices adjacent to this vertex
+    for (int i = 0; i < graph->vertices; i++) {
+        if (graph->adj[startVertex][i] == 1 && !visited[i]) {
+            DFS(graph, i, visited);
+        }
+    }
+}
+
+// Function to perform DFS traversal for the whole graph
+void DFSFullTraversal(struct Graph* graph) {
+    int visited[MAX_VERTICES] = {0}; // Array to track visited nodes
+
+    // Perform DFS for each unvisited node (useful for disconnected graphs)
+    for (int i = 0; i < graph->vertices; i++) {
+        if (!visited[i]) {
+            DFS(graph, i, visited);
+        }
+    }
+}
+
+int main() {
+    struct Graph graph;
+    
+    // Initialize graph with number of vertices
+    initGraph(&graph, 4); // Change 4 to any number of vertices
+
+    // Add edges to the graph (undirected graph in this case)
+    graph.adj[0][1] = 1;
+    graph.adj[1][0] = 1; // Edge from 0 to 1 and 1 to 0 (undirected graph)
+    graph.adj[0][2] = 1;
+    graph.adj[2][0] = 1; // Edge from 0 to 2 and 2 to 0
+    graph.adj[1][3] = 1;
+    graph.adj[3][1] = 1; // Edge from 1 to 3 and 3 to 1
+
+    printf("DFS traversal starting from vertex 0:\n");
+    DFSFullTraversal(&graph); // Full DFS traversal
+    return 0;
+}
+
+***********Q-2) Write a program to solve 4 Queens Problem using Backtracking 
+
+#include <stdio.h>
+#include <limits.h>
+
+#define V 5  // Number of vertices in the graph
+#define INF INT_MAX  // Infinite distance
+
+// Function to find the vertex with the minimum distance that is not yet visited
+int minDistance(int dist[], int visited[]) {
+    int min = INF, min_index;
+
+    for (int v = 0; v < V; v++) {
+        if (visited[v] == 0 && dist[v] <= min) {
+            min = dist[v];
+            min_index = v;
+        }
+    }
+
+    return min_index;
+}
+
+// Function to implement Dijkstra's algorithm
+void dijkstra(int graph[V][V], int src) {
+    int dist[V];   // Array to store the shortest distance from the source
+    int visited[V]; // Boolean array to track visited vertices
+
+    // Initialize all distances as INF and visited[] as 0
+    for (int i = 0; i < V; i++) {
+        dist[i] = INF;
+        visited[i] = 0;
+    }
+
+    // Distance to the source is 0
+    dist[src] = 0;
+
+    // Find the shortest path for each vertex
+    for (int count = 0; count < V - 1; count++) {
+        // Pick the vertex with the minimum distance that is not yet visited
+        int u = minDistance(dist, visited);
+
+        // Mark the picked vertex as visited
+        visited[u] = 1;
+
+        // Update the distance of the adjacent vertices of the picked vertex
+        for (int v = 0; v < V; v++) {
+            // Update dist[v] if the new path is shorter and vertex v is not visited
+            if (!visited[v] && graph[u][v] != 0 && dist[u] != INF && dist[u] + graph[u][v] < dist[v]) {
+                dist[v] = dist[u] + graph[u][v];
+            }
+        }
+    }
+
+    // Print the computed shortest distances
+    printf("Vertex   Distance from Source\n");
+    for (int i = 0; i < V; i++) {
+        printf("%d \t\t %d\n", i, dist[i]);
+    }
+}
+
+int main() {
+    // Create a graph represented by an adjacency matrix
+    // The graph is weighted and connected
+    int graph[V][V] = {
+        {0, 10, 0, 0, 20},
+        {10, 0, 5, 0, 0},
+        {0, 5, 0, 15, 0},
+        {0, 0, 15, 0, 25},
+        {20, 0, 0, 25, 0}
+    };
+
+    // Starting from vertex 0 (can be changed to any other vertex)
+    dijkstra(graph, 0);
+
+    return 0;
+}
+
+Slip 12==========  Q.1) Write a program to implement BFS (Breadth First Search) and determine the time 
+                   complexity for the same. 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define V 5  // Number of vertices in the graph
+
+// Function to perform BFS traversal
+void BFS(int graph[V][V], int startVertex) {
+    bool visited[V];
+    for (int i = 0; i < V; i++) {
+        visited[i] = false;  // Mark all vertices as unvisited
+    }
+
+    // Create a queue for BFS
+    int queue[V], front = 0, rear = 0;
+    
+    // Enqueue the source vertex and mark it as visited
+    queue[rear++] = startVertex;
+    visited[startVertex] = true;
+    printf("BFS Traversal starting from vertex %d: ", startVertex);
+    
+    // Perform BFS
+    while (front < rear) {
+        int currentVertex = queue[front++];
+        printf("%d ", currentVertex);  // Print the visited vertex
+        
+        // Visit all the adjacent vertices of the current vertex
+        for (int i = 0; i < V; i++) {
+            if (graph[currentVertex][i] == 1 && !visited[i]) {
+                queue[rear++] = i;  // Enqueue adjacent vertex
+                visited[i] = true;   // Mark it as visited
+            }
+        }
+    }
+    printf("\n");
+}
+
+int main() {
+    // Create a graph represented by an adjacency matrix
+    // The graph is weighted and connected
+    int graph[V][V] = {
+        {0, 1, 1, 0, 0},
+        {1, 0, 1, 1, 0},
+        {1, 1, 0, 1, 1},
+        {0, 1, 1, 0, 1},
+        {0, 0, 1, 1, 0}
+    };
+
+    // Starting BFS traversal from vertex 0
+    BFS(graph, 0);
+    return 0;
+}
+
+***********Q.2) Write a program to sort a given set of elements using the Selection sort method and 
+                      determine the time required to sort the elements. 
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Function to perform selection sort
+void selectionSort(int arr[], int n) {
+    int i, j, minIdx, temp;
+
+    for (i = 0; i < n - 1; i++) {
+        // Find the minimum element in unsorted array
+        minIdx = i;
+        for (j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIdx]) {
+                minIdx = j;
+            }
+        }
+
+        // Swap the found minimum element with the first element
+        temp = arr[minIdx];
+        arr[minIdx] = arr[i];
+        arr[i] = temp;
+    }
+}
+
+// Function to print the array
+void printArray(int arr[], int n) {
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int n;
+
+    // Taking input from the user
+    printf("Enter the number of elements: ");
+    scanf("%d", &n);
+
+    int arr[n];
+
+    printf("Enter the elements:\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    // Record the start time
+    clock_t start_time = clock();
+
+    // Call the selection sort function
+    selectionSort(arr, n);
+
+    // Record the end time
+    clock_t end_time = clock();
+
+    // Calculate the time taken
+    double time_taken = ((double)end_time - start_time) / CLOCKS_PER_SEC;
+
+    // Print the sorted array
+    printf("Sorted array: \n");
+    printArray(arr, n);
+
+    // Print the time taken to sort the array
+    printf("Time taken to sort the array: %f seconds\n", time_taken);
+
+    return 0;
+}
+
+Slip 13=========== Q.1) Write a program to find minimum number of multiplications in Matrix Chain 
+                   Multiplication. 
+#include <stdio.h>
+#include <limits.h>
+
+// Function to find the minimum number of multiplications for matrix chain multiplication
+int matrixChainOrder(int p[], int n) {
+    int dp[n][n];
+    
+    // dp[i][j] will store the minimum number of multiplications needed to multiply matrices i through j
+    for (int i = 1; i < n; i++) {
+        dp[i][i] = 0;  // No multiplication needed for a single matrix
+    }
+
+    // chain length from 2 to n
+    for (int len = 2; len < n; len++) {
+        for (int i = 1; i < n - len + 1; i++) {
+            int j = i + len - 1;
+            dp[i][j] = INT_MAX;
+
+            // Try all possible places to split the chain
+            for (int k = i; k < j; k++) {
+                int q = dp[i][k] + dp[k + 1][j] + p[i - 1] * p[k] * p[j];
+                if (q < dp[i][j]) {
+                    dp[i][j] = q;
+                }
+            }
+        }
+    }
+    
+    return dp[1][n - 1];
+}
+
+int main() {
+    int n;
+
+    // Input: Number of matrices
+    printf("Enter the number of matrices: ");
+    scanf("%d", &n);
+
+    // Array to store dimensions of matrices
+    int p[n+1];
+    printf("Enter the dimensions of matrices (n+1 values):\n");
+    for (int i = 0; i <= n; i++) {
+        scanf("%d", &p[i]);
+    }
+
+    // Function call to calculate minimum number of multiplications
+    int minMultiplications = matrixChainOrder(p, n + 1);
+
+    printf("Minimum number of multiplications: %d\n", minMultiplications);
+
+    return 0;
+}
+
+******Q.2) Write a program to implement an optimal binary search tree and also calculate the 
+                   best case and worst-case complexity. 
+#include <stdio.h>
+#include <limits.h>
+
+#define MAX 100
+
+// Function to calculate the minimum cost of the OBST
+int optimalBST(int keys[], int freq[], int n) {
+    int i, j, k, length, cost[n][n], sum[n];
+    
+    // sum[i] stores the sum of frequencies from i to n
+    sum[0] = freq[0];
+    for (i = 1; i < n; i++) {
+        sum[i] = sum[i - 1] + freq[i];
+    }
+
+    // cost[i][j] will store the cost of searching in the optimal BST for keys[i..j]
+    for (i = 0; i < n; i++) {
+        cost[i][i] = freq[i];
+    }
+
+    // Calculate cost for chains of length 2 to n
+    for (length = 2; length <= n; length++) {
+        for (i = 0; i <= n - length; i++) {
+            j = i + length - 1;
+            cost[i][j] = INT_MAX;
+
+            // Try all roots for the subtree keys[i..j]
+            for (k = i; k <= j; k++) {
+                int q = ((k > i) ? cost[i][k - 1] : 0) + ((k < j) ? cost[k + 1][j] : 0) + sum[j] - ((i > 0) ? sum[i - 1] : 0);
+                if (q < cost[i][j]) {
+                    cost[i][j] = q;
+                }
+            }
+        }
+    }
+
+    return cost[
+
+Slip  14==========   Q.1) Write a program to sort a list of n numbers in ascending order using Insertion sort and 
+                       determine the time required to sort the elements. 
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Function to perform Insertion Sort
+void insertionSort(int arr[], int n) {
+    int key, j;
+
+    // Start from the second element
+    for (int i = 1; i < n; i++) {
+        key = arr[i];  // The element to be inserted
+        j = i - 1;
+
+        // Move elements of arr[0..i-1], that are greater than key, to one position ahead
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j = j - 1;
+        }
+        
+        // Place the key in the correct position
+        arr[j + 1] = key;
+    }
+}
+
+// Function to print the array
+void printArray(int arr[], int n) {
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int n;
+
+    // Taking input for the number of elements
+    printf("Enter the number of elements: ");
+    scanf("%d", &n);
+
+    int arr[n];
+
+    // Taking input for the array elements
+    printf("Enter the elements:\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    // Record the start time
+    clock_t start_time = clock();
+
+    // Call the insertion sort function
+    insertionSort(arr, n);
+
+    // Record the end time
+    clock_t end_time = clock();
+
+    // Calculate the time taken
+    double time_taken = ((double)end_time - start_time) / CLOCKS_PER_SEC;
+
+    // Print the sorted array
+    printf("Sorted array: \n");
+    printArray(arr, n);
+
+    // Print the time taken to sort the array
+    printf("Time taken to sort the array: %f seconds\n", time_taken);
+
+    return 0;
+}
+
+*********Q.2) Write a program to implement DFS and BFS. Compare the time complexity 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 20
+
+// Adjacency list representation of graph
+struct Graph {
+    int vertices;
+    int adj[MAX][MAX]; // adjacency matrix representation
+};
+
+// Function for DFS traversal
+void DFS(struct Graph *g, int visited[], int vertex) {
+    visited[vertex] = 1;
+    printf("%d ", vertex);
+    
+    for (int i = 0; i < g->vertices; i++) {
+        if (g->adj[vertex][i] == 1 && !visited[i]) {
+            DFS(g, visited, i);
+        }
+    }
+}
+
+// Function for BFS traversal
+void BFS(struct Graph *g, int visited[], int startVertex) {
+    int queue[MAX], front = -1, rear = -1;
+    visited[startVertex] = 1;
+    
+    // Enqueue the starting vertex
+    rear++;
+    queue[rear] = startVertex;
+    
+    while (front != rear) {
+        front++;
+        int current = queue[front];
+        printf("%d ", current);
+
+        // Enqueue all unvisited neighbors
+        for (int i = 0; i < g->vertices; i++) {
+            if (g->adj[current][i] == 1 && !visited[i]) {
+                rear++;
+                queue[rear] = i;
+                visited[i] = 1;
+            }
+        }
+    }
+}
+
+int main() {
+    struct Graph g;
+    int visited[MAX] = {0};
+    int startVertex;
+    
+    // Input graph
+    printf("Enter the number of vertices: ");
+    scanf("%d", &g.vertices);
+    
+    printf("Enter the adjacency matrix (0 and 1):\n");
+    for (int i = 0; i < g.vertices; i++) {
+        for (int j = 0; j < g.vertices; j++) {
+            scanf("%d", &g.adj[i][j]);
+        }
+    }
+    
+    // Perform DFS
+    printf("Enter the start vertex for DFS: ");
+    scanf("%d", &startVertex);
+    
+    printf("\nDFS traversal starting from vertex %d: ", startVertex);
+    DFS(&g, visited, startVertex);
+    
+    // Reset visited array for BFS
+    for (int i = 0; i < g.vertices; i++) {
+        visited[i] = 0;
+    }
+    
+    // Perform BFS
+    printf("\nEnter the start vertex for BFS: ");
+    scanf("%d", &startVertex);
+    
+    printf("\nBFS traversal starting from vertex %d: ", startVertex);
+    BFS(&g, visited, startVertex);
+
+    return 0;
+}
+
+Slip 15==================== .1) Write a program to implement to find out solution for 0/1 knapsack problem using  
+                        LCBB (Least Cost Branch and Bound). 
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_ITEMS 100
+#define MAX_CAPACITY 1000
+
+// Structure to represent an item
+typedef struct {
+    int value;
+    int weight;
+} Item;
+
+// Structure to represent a node in the search tree
+typedef struct {
+    int level;      // Current level in the tree (which item is being considered)
+    int weight;     // Weight of items selected up to this level
+    int value;      // Value of items selected up to this level
+    float bound;    // Upper bound on maximum value that can be obtained
+} Node;
+
+// Global variables
+int n;             // Number of items
+int W;             // Maximum capacity of the knapsack
+Item items[MAX_ITEMS];  // Array of items
+int maxValue = 0;  // Maximum value found so far
+
+// Function to calculate upper bound for a given node
+float bound(Node u) {
+    // If weight exceeds capacity, return 0
+    if (u.weight >= W)
+        return 0;
+
+    // Otherwise, calculate upper bound
+    float result = u.value;
+    int j = u.level + 1;
+    int totalWeight = u.weight;
+
+    // Take as much as possible of the remaining items
+    while (j < n && totalWeight + items[j].weight <= W) {
+        totalWeight += items[j].weight;
+        result += items[j].value;
+        j++;
+    }
+
+    // If there is still capacity left, take a fraction of the next item
+    if (j < n)
+        result += (W - totalWeight) * items[j].value / (float)items[j].weight;
+
+    return result;
+}
+
+// Function to perform LCBB (Least Cost Branch and Bound)
+void LCBB() {
+    Node queue[MAX_ITEMS * 2]; // Queue for BFS-like exploration
+    int front = 0, rear = 0;
+
+    // Sort items based on value/weight ratio (greedy heuristic)
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if ((float)items[j].value / items[j].weight > (float)items[i].value / items[i].weight) {
+                // Swap items[i] and items[j]
+                Item temp = items[i];
+                items[i] = items[j];
+                items[j] = temp;
+            }
+        }
+    }
+
+    // Start with the root node (level -1, no item included)
+    Node root = { -1, 0, 0, 0.0 };
+    root.bound = bound(root);
+    queue[rear++] = root;
+
+    while (front < rear) {
+        Node u = queue[front++];
+
+        // If we are at a leaf node and it gives a better solution, update maxValue
+        if (u.level == n - 1)
+            if (u.value > maxValue)
+                maxValue = u.value;
+        else {
+            // Explore the next level, two branches (include or exclude the next item)
+            Node v = u;
+            v.level = u.level + 1;
+
+            // Include the next item (if weight allows)
+            if (u.weight + items[v.level].weight <= W) {
+                v.weight = u.weight + items[v.level].weight;
+                v.value = u.value + items[v.level].value;
+                v.bound = bound(v);
+                if (v.bound > maxValue) {
+                    queue[rear++] = v;  // Add to queue if it could lead to a better solution
+                }
+            }
+
+            // Exclude the next item (move to next level without including this item)
+            v.weight = u.weight;
+            v.value = u.value;
+            v.bound = bound(v);
+            if (v.bound > maxValue)
+                queue[rear++] = v;  // Add to queue if it could lead to a better solution
+        }
+    }
+}
+
+// Main function
+int main() {
+    printf("Enter the number of items: ");
+    scanf("%d", &n);
+    printf("Enter the capacity of the knapsack: ");
+    scanf("%d", &W);
+
+    printf("Enter the value and weight of each item:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Item %d value: ", i + 1);
+        scanf("%d", &items[i].value);
+        printf("Item %d weight: ", i + 1);
+        scanf("%d", &items[i].weight);
+    }
+
+    // Call LCBB algorithm to solve the 0/1 Knapsack problem
+    LCBB();
+
+    // Output the maximum value that can be carried in the knapsack
+    printf("Maximum value in Knapsack = %d\n", maxValue);
+
+    return 0;
+}
+
+******Q.2)  Write a program to implement Graph Coloring Algorithm 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_VERTICES 20
+
+// Function to check if the color can be assigned to vertex u
+int isSafe(int graph[MAX_VERTICES][MAX_VERTICES], int color[], int vertex, int c, int n) {
+    for (int i = 0; i < n; i++) {
+        if (graph[vertex][i] && color[i] == c) {
+            return 0;  // Conflict with adjacent vertex
+        }
+    }
+    return 1;  // Safe to assign color
+}
+
+// Function to implement Graph Coloring using Backtracking
+int graphColoring(int graph[MAX_VERTICES][MAX_VERTICES], int m, int color[], int vertex, int n) {
+    // If all vertices are assigned a color then return true
+    if (vertex == n) {
+        return 1; // All vertices are colored successfully
+    }
+
+    // Try different colors for vertex
+    for (int c = 1; c <= m; c++) {
+        // Check if it's safe to color vertex with color c
+        if (isSafe(graph, color, vertex, c, n)) {
+            color[vertex] = c;  // Assign color c to vertex
+
+            // Recur to assign colors to the rest of the vertices
+            if (graphColoring(graph, m, color, vertex + 1, n)) {
+                return 1;
+            }
+
+            // If assigning color c doesn't lead to a solution, backtrack
+            color[vertex] = 0;
+        }
+    }
+
+    return 0;  // No valid color assignment found
+}
+
+// Function to solve the Graph Coloring problem
+void solveGraphColoring(int graph[MAX_VERTICES][MAX_VERTICES], int n, int m) {
+    int color[MAX_VERTICES];
+
+    // Initialize color array with 0 (no color assigned)
+    for (int i = 0; i < n; i++) {
+        color[i] = 0;
+    }
+
+    // Call the graphColoring function to find the solution
+    if (graphColoring(graph, m, color, 0, n)) {
+        printf("Solution found: The colors assigned to vertices are:\n");
+        for (int i = 0; i < n; i++) {
+            printf("Vertex %d -> Color %d\n", i + 1, color[i]);
+        }
+    } else {
+        printf("Solution does not exist with %d colors\n", m);
+    }
+}
+
+int main() {
+    int graph[MAX_VERTICES][MAX_VERTICES], n, m;
+
+    // Input the number of vertices
+    printf("Enter the number of vertices in the graph: ");
+    scanf("%d", &n);
+
+    // Input the adjacency matrix representing the graph
+    printf("Enter the adjacency matrix (0 or 1 for no/yes edges between vertices):\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    // Input the number of colors available
+    printf("Enter the number of colors: ");
+    scanf("%d", &m);
+
+    // Solve the Graph Coloring problem
+    solveGraphColoring(graph, n, m);
+
+    return 0;
+}
+
+Slip 16=============Q.1) Write a program to implement to find out solution for 0/1 knapsack problem using 
+                   dynamic programming.
+
+#include <stdio.h>
+
+// Function to solve the 0/1 Knapsack problem using Dynamic Programming
+int knapsack(int W, int wt[], int val[], int n) {
+    int dp[n + 1][W + 1]; // Create a DP table to store the maximum value for each subproblem
+
+    // Fill the DP table
+    for (int i = 0; i <= n; i++) {
+        for (int w = 0; w <= W; w++) {
+            if (i == 0 || w == 0) {
+                dp[i][w] = 0; // If there are no items or the capacity is 0, value is 0
+            } else if (wt[i - 1] <= w) {
+                // If the current item can be included, choose the maximum of including or excluding the item
+                dp[i][w] = (val[i - 1] + dp[i - 1][w - wt[i - 1]] > dp[i - 1][w]) ? 
+                            val[i - 1] + dp[i - 1][w - wt[i - 1]] : dp[i - 1][w];
+            } else {
+                dp[i][w] = dp[i - 1][w]; // If the current item cannot be included, exclude it
+            }
+        }
+    }
+
+    // The final solution is stored in dp[n][W]
+    return dp[n][W];
+}
+
+int main() {
+    int n, W;
+
+    // Input the number of items
+    printf("Enter the number of items: ");
+    scanf("%d", &n);
+
+    // Input the capacity of the knapsack
+    printf("Enter the capacity of the knapsack: ");
+    scanf("%d", &W);
+
+    int wt[n], val[n];
+
+    // Input the weight and value of each item
+    printf("Enter the weight and value of each item:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Item %d weight: ", i + 1);
+        scanf("%d", &wt[i]);
+        printf("Item %d value: ", i + 1);
+        scanf("%d", &val[i]);
+    }
+
+    // Call the knapsack function to get the maximum value
+    int maxValue = knapsack(W, wt, val, n);
+
+    // Output the result
+    printf("The maximum value that can be carried in the knapsack is: %d\n", maxValue);
+
+    return 0;
+}
+
+****************Q.2) Write a program to determine if a given graph is a Hamiltonian cycle or not. [15 Marks] 
+
+#include <stdio.h>
+#include <stdbool.h>
+
+#define MAX_VERTICES 20
+
+// Function to check if a vertex can be added to the Hamiltonian Cycle
+bool isSafe(int graph[MAX_VERTICES][MAX_VERTICES], int path[], int pos, int v) {
+    // Check if this vertex is an adjacent vertex of the previously added vertex
+    if (graph[path[pos - 1]][v] == 0) {
+        return false;
+    }
+
+    // Check if the vertex has already been included in the path
+    for (int i = 0; i < pos; i++) {
+        if (path[i] == v) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Utility function to solve the Hamiltonian Cycle problem using Backtracking
+bool hamCycleUtil(int graph[MAX_VERTICES][MAX_VERTICES], int path[], int pos, int n) {
+    // Base case: If all vertices are included in the cycle
+    if (pos == n) {
+        // And if there is an edge from the last vertex to the first vertex
+        if (graph[path[pos - 1]][path[0]] == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    // Try different vertices as the next candidate in the cycle
+    for (int v = 1; v < n; v++) {
+        if (isSafe(graph, path, pos, v)) {
+            path[pos] = v;
+
+            // Recur to construct the rest of the cycle
+            if (hamCycleUtil(graph, path, pos + 1, n)) {
+                return true;
+            }
+
+            // Backtrack
+            path[pos] = -1;
+        }
+    }
+
+    return false;
+}
+
+// Function to solve the Hamiltonian Cycle problem
+bool hamCycle(int graph[MAX_VERTICES][MAX_VERTICES], int n) {
+    int path[n];
+    
+    // Initialize the path array
+    for (int i = 0; i < n; i++) {
+        path[i] = -1;
+    }
+
+    // Start with the first vertex (vertex 0)
+    path[0] = 0;
+
+    // Call the utility function to solve the problem
+    if (hamCycleUtil(graph, path, 1, n)) {
+        printf("Hamiltonian Cycle exists: \n");
+        for (int i = 0; i < n; i++) {
+            printf("%d -> ", path[i]);
+        }
+        printf("%d\n", path[0]); // To complete the cycle
+        return true;
+    }
+
+    printf("No Hamiltonian Cycle exists.\n");
+    return false;
+}
+
+int main() {
+    int graph[MAX_VERTICES][MAX_VERTICES], n;
+
+    // Input the number of vertices
+    printf("Enter the number of vertices in the graph: ");
+    scanf("%d", &n);
+
+    // Input the adjacency matrix representing the graph
+    printf("Enter the adjacency matrix (1 for edge, 0 for no edge):\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    // Call the function to check for Hamiltonian Cycle
+    hamCycle(graph, n);
+
+    return 0;
+}
+
+Slip 17==========Q.1) Write a program to implement solve ‘N’ Queens Problem using Backtracking. 
+
+#include <stdio.h>
+#include <stdbool.h>
+
+#define MAX 20
+
+int board[MAX][MAX];
+
+// Function to print the solution
+void printSolution(int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            printf("%d ", board[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+// Function to check if a queen can be placed at board[row][col]
+bool isSafe(int row, int col, int n) {
+    // Check the column
+    for (int i = 0; i < row; i++) {
+        if (board[i][col] == 1) {
+            return false;
+        }
+    }
+
+    // Check the left diagonal
+    for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+        if (board[i][j] == 1) {
+            return false;
+        }
+    }
+
+    // Check the right diagonal
+    for (int i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) {
+        if (board[i][j] == 1) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Function to solve the N-Queens problem using Backtracking
+bool solveNQueens(int row, int n) {
+    // If all queens are placed, return true
+    if (row >= n) {
+        return true;
+    }
+
+    // Try placing a queen in all columns one by one
+    for (int col = 0; col < n; col++) {
+        // Check if it's safe to place the queen
+        if (isSafe(row, col, n)) {
+            board[row][col] = 1;  // Place the queen
+
+            // Recur to place the rest of the queens
+            if (solveNQueens(row + 1, n)) {
+                return true;
+            }
+
+            // If placing queen in current column doesn't lead to a solution, backtrack
+            board[row][col] = 0;  // Remove the queen (backtrack)
+        }
+    }
+
+    return false;  // If no column can be selected for the current row
+}
+
+int main() {
+    int n;
+
+    // Input the number of queens (size of the chessboard)
+    printf("Enter the number of queens: ");
+    scanf("%d", &n);
+
+    // Initialize the board with 0 (no queens placed)
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            board[i][j] = 0;
+        }
+    }
+
+    // Call the function to solve the N-Queens problem
+    if (solveNQueens(0, n)) {
+        printf("Solution to the N-Queens problem:\n");
+        printSolution(n);
+    } else {
+        printf("No solution exists for %d queens.\n", n);
+    }
+
+    return 0;
+}
+
+*********'Q.2) Write a program to find out solution for 0/1 knapsack problem.                             [15 Marks] 
+
+#include <stdio.h>
+
+#define MAX_ITEMS 100
+
+// Function to find the maximum value in 0/1 Knapsack problem
+int knapsack(int weight[], int value[], int n, int W) {
+    // dp[i][w] will store the maximum value that can be attained with weight <= w and items 1 to i
+    int dp[n+1][W+1];
+
+    // Build the dp table in a bottom-up manner
+    for (int i = 0; i <= n; i++) {
+        for (int w = 0; w <= W; w++) {
+            if (i == 0 || w == 0) {
+                dp[i][w] = 0;  // Base case: if there are no items or no capacity
+            } else if (weight[i-1] <= w) {
+                // If the current item can be included in the knapsack
+                dp[i][w] = (dp[i-1][w] > dp[i-1][w - weight[i-1]] + value[i-1]) ?
+                            dp[i-1][w] : dp[i-1][w - weight[i-1]] + value[i-1];
+            } else {
+                // If the current item cannot be included in the knapsack
+                dp[i][w] = dp[i-1][w];
+            }
+        }
+    }
+
+    // dp[n][W] will hold the maximum value of knapsack that can be attained
+    return dp[n][W];
+}
+
+int main() {
+    int n, W;
+
+    // Input number of items
+    printf("Enter the number of items: ");
+    scanf("%d", &n);
+
+    // Input the weight of each item
+    int weight[n];
+    printf("Enter the weights of the items: ");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &weight[i]);
+    }
+
+    // Input the value of each item
+    int value[n];
+    printf("Enter the values of the items: ");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &value[i]);
+    }
+
+    // Input the maximum capacity of the knapsack
+    printf("Enter the capacity of the knapsack: ");
+    scanf("%d", &W);
+
+    // Call knapsack function to get the maximum value
+    int result = knapsack(weight, value, n, W);
+    
+    // Output the result
+    printf("Maximum value that can be obtained: %d\n", result);
+
+    return 0;
+}
+
+Slip 18==============Q.1) Write a program to implement Graph Coloring Algorithm. [15 Marks] 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_VERTICES 100
+
+// Function to find the first color that is not assigned to adjacent vertices
+int getAvailableColor(int graph[MAX_VERTICES][MAX_VERTICES], int color[], int n, int vertex) {
+    int availableColors[n + 1];  // To track available colors
+    
+    // Initialize available colors to true (not used)
+    for (int i = 0; i <= n; i++) {
+        availableColors[i] = 1;
+    }
+
+    // Check all adjacent vertices and mark their colors as unavailable
+    for (int i = 0; i < n; i++) {
+        if (graph[vertex][i] == 1 && color[i] != -1) {
+            availableColors[color[i]] = 0;  // Mark the color of adjacent vertex as unavailable
+        }
+    }
+
+    // Find the first available color
+    for (int c = 1; c <= n; c++) {
+        if (availableColors[c] == 1) {
+            return c;
+        }
+    }
+
+    return -1;  // This should never happen if there's enough colors
+}
+
+// Function to perform Graph Coloring
+void graphColoring(int graph[MAX_VERTICES][MAX_VERTICES], int n) {
+    int color[n];  // Array to store the color assigned to each vertex
+    for (int i = 0; i < n; i++) {
+        color[i] = -1;  // Initialize all vertices with no color
+    }
+
+    // Assign the first color to the first vertex
+    color[0] = 1;
+
+    // Assign colors to the remaining vertices
+    for (int vertex = 1; vertex < n; vertex++) {
+        // Find the first available color for this vertex
+        color[vertex] = getAvailableColor(graph, color, n, vertex);
+    }
+
+    // Print the result
+    printf("Vertex : Color\n");
+    for (int i = 0; i < n; i++) {
+        printf(" %d     :   %d\n", i + 1, color[i]);
+    }
+}
+
+int main() {
+    int n;
+
+    // Input the number of vertices in the graph
+    printf("Enter the number of vertices: ");
+    scanf("%d", &n);
+
+    // Input the adjacency matrix for the graph
+    int graph[MAX_VERTICES][MAX_VERTICES];
+    printf("Enter the adjacency matrix:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    // Call the graphColoring function to color the graph
+    graphColoring(graph, n);
+
+    return 0;
+}
+
+******Q.2) Write a program to find out live node, E node and dead node from a given graph. 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_VERTICES 100
+
+// Graph representation
+int graph[MAX_VERTICES][MAX_VERTICES];  // Adjacency matrix
+int visited[MAX_VERTICES];  // Visited array for DFS/BFS
+int n;  // Number of vertices
+
+// DFS function to explore reachable nodes
+void dfs(int node) {
+    visited[node] = 1;
+    for (int i = 0; i < n; i++) {
+        if (graph[node][i] == 1 && !visited[i]) {
+            dfs(i);
+        }
+    }
+}
+
+// Function to find and print end nodes (E Nodes)
+void findEndNodes() {
+    printf("End Nodes (E Nodes):\n");
+    for (int i = 0; i < n; i++) {
+        int isEndNode = 1;
+        for (int j = 0; j < n; j++) {
+            if (graph[i][j] == 1) {
+                isEndNode = 0;  // Has outgoing edges
+                break;
+            }
+        }
+        if (isEndNode) {
+            printf("%d ", i + 1);  // Printing 1-based index
+        }
+    }
+    printf("\n");
+}
+
+// Function to find and print live nodes
+void findLiveNodes() {
+    printf("Live Nodes:\n");
+    
+    for (int i = 0; i < n; i++) {
+        // Reset visited array for each DFS call
+        for (int j = 0; j < n; j++) visited[j] = 0;
+
+        // Perform DFS from each node
+        dfs(i);
+
+        // Check if any end node can be reached from the current node
+        int isLiveNode = 0;
+        for (int j = 0; j < n; j++) {
+            if (graph[j][i] == 1 && visited[j] == 1) {
+                isLiveNode = 1;
+                break;
+            }
+        }
+
+        if (isLiveNode) {
+            printf("%d ", i + 1);  // Printing 1-based index
+        }
+    }
+    printf("\n");
+}
+
+// Function to find and print dead nodes
+void findDeadNodes() {
+    printf("Dead Nodes:\n");
+    
+    for (int i = 0; i < n; i++) {
+        // Reset visited array for each DFS call
+        for (int j = 0; j < n; j++) visited[j] = 0;
+
+        // Perform DFS from every other node and check if node is reachable
+        int isDeadNode = 1;
+        for (int j = 0; j < n; j++) {
+            if (graph[j][i] == 1) {
+                dfs(j);
+                if (visited[i] == 1) {
+                    isDeadNode = 0;
+                    break;
+                }
+            }
+        }
+
+        if (isDeadNode) {
+            printf("%d ", i + 1);  // Printing 1-based index
+        }
+    }
+    printf("\n");
+}
+
+int main() {
+    // Input the number of vertices (nodes)
+    printf("Enter the number of vertices: ");
+    scanf("%d", &n);
+
+    // Input the adjacency matrix for the directed graph
+    printf("Enter the adjacency matrix:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    // Finding end nodes (E Nodes)
+    findEndNodes();
+
+    // Finding live nodes
+    findLiveNodes();
+
+    // Finding dead nodes
+    findDeadNodes();
+
+    return 0;
+}
+
+Slip 19==========Q.1) Write a program to determine if a given graph is a Hamiltonian cycle or 
+                        Not. 
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_VERTICES 100
+
+int graph[MAX_VERTICES][MAX_VERTICES];  // Adjacency matrix
+int n;  // Number of vertices
+
+// Function to check if the current vertex can be added to the Hamiltonian cycle
+int isSafe(int v, int path[], int pos) {
+    // Check if this vertex is an adjacent vertex of the previously added vertex
+    if (graph[path[pos - 1]][v] == 0) {
+        return 0;
+    }
+
+    // Check if the vertex has already been included
+    for (int i = 0; i < pos; i++) {
+        if (path[i] == v) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+// Backtracking function to find the Hamiltonian cycle
+int hamiltonianCycleUtil(int path[], int pos) {
+    // Base case: If all vertices are included in the cycle
+    if (pos == n) {
+        // Check if there is an edge from the last vertex to the first vertex
+        if (graph[path[pos - 1]][path[0]] == 1) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    // Try different vertices as the next candidate in the cycle
+    for (int v = 1; v < n; v++) {
+        if (isSafe(v, path, pos)) {
+            path[pos] = v;
+
+            // Recur to construct the rest of the cycle
+            if (hamiltonianCycleUtil(path, pos + 1)) {
+                return 1;
+            }
+
+            // Backtrack: If adding vertex v doesn't lead to a solution
+            path[pos] = -1;
+        }
+    }
+
+    return 0;
+}
+
+// Function to check if the graph contains a Hamiltonian cycle
+int hamiltonianCycle() {
+    int path[n];
+
+    // Initialize the path with -1 (no vertex is included yet)
+    for (int i = 0; i < n; i++) {
+        path[i] = -1;
+    }
+
+    // Starting point is always the first vertex (index 0)
+    path[0] = 0;
+
+    // Call the utility function to check if a Hamiltonian cycle exists
+    if (hamiltonianCycleUtil(path, 1) == 0) {
+        return 0;  // No Hamiltonian cycle exists
+    }
+
+    // Print the Hamiltonian cycle if found
+    printf("Hamiltonian Cycle: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", path[i] + 1);  // Convert to 1-based indexing
+    }
+    printf("\n");
+
+    return 1;  // Hamiltonian cycle exists
+}
+
+int main() {
+    // Input the number of vertices in the graph
+    printf("Enter the number of vertices: ");
+    scanf("%d", &n);
+
+    // Input the adjacency matrix for the graph
+    printf("Enter the adjacency matrix:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    // Check if the graph has a Hamiltonian cycle
+    if (!hamiltonianCycle()) {
+        printf("No Hamiltonian cycle exists\n");
+    }
+
+    return 0;
+}
+
+********Q.2) Write a program to show board configuration of 4 queens’ problem. 
+
+
+#include <stdio.h>
+
+#define N 4  // Number of queens
+
+int board[N][N];  // Chessboard
+
+// Function to print the current configuration of the board
+void printBoard() {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            if (board[i][j] == 1) {
+                printf(" Q ");
+            } else {
+                printf(" . ");
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+// Function to check if it's safe to place a queen at position (row, col)
+int isSafe(int row, int col) {
+    // Check the column
+    for (int i = 0; i < row; i++) {
+        if (board[i][col] == 1) {
+            return 0;
+        }
+    }
+
+    // Check the upper-left diagonal
+    for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+        if (board[i][j] == 1) {
+            return 0;
+        }
+    }
+
+    // Check the upper-right diagonal
+    for (int i = row - 1, j = col + 1; i >= 0 && j < N; i--, j++) {
+        if (board[i][j] == 1) {
+            return 0;
+        }
+    }
+
+    return 1;  // Safe to place queen
+}
+
+// Backtracking function to solve the N Queens problem
+int solveNQueens(int row) {
+    // If all queens are placed, return true
+    if (row >= N) {
+        return 1;
+    }
+
+    // Try all columns for the current row
+    for (int col = 0; col < N; col++) {
+        // Check if it's safe to place a queen at (row, col)
+        if (isSafe(row, col)) {
+            board[row][col] = 1;  // Place the queen
+
+            // Recur to place the next queen
+            if (solveNQueens(row + 1)) {
+                return 1;  // If placing queen leads to a solution, return true
+            }
+
+            // Backtrack if no solution found
+            board[row][col] = 0;  // Remove the queen
+        }
+    }
+
+    return 0;  // No solution found for this row
+}
+
+int main() {
+    // Initialize the chessboard with 0s (empty positions)
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            board[i][j] = 0;
+        }
+    }
+
+    // Solve the N Queens problem
+    if (solveNQueens(0)) {
+        printf("Solution found! Here is the board configuration:\n");
+        printBoard();  // Display the solution
+    } else {
+        printf("No solution exists for the 4 Queens problem.\n");
+    }
+
+    return 0;
+}
+
+Slip 20================== Q.1) Write a program to implement for finding Topological sorting and determine the time 
+                        complexity for the same.
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_VERTICES 100
+
+int graph[MAX_VERTICES][MAX_VERTICES];  // Adjacency matrix
+int inDegree[MAX_VERTICES];  // Array to store the in-degree of each vertex
+int n;  // Number of vertices
+
+// Function to perform Topological Sort using Kahn's Algorithm (BFS)
+void topologicalSort() {
+    int queue[MAX_VERTICES], front = 0, rear = 0;
+    int topOrder[MAX_VERTICES], index = 0;
+
+    // Enqueue all vertices with in-degree 0
+    for (int i = 0; i < n; i++) {
+        if (inDegree[i] == 0) {
+            queue[rear++] = i;
+        }
+    }
+
+    // Perform the BFS-like process
+    while (front < rear) {
+        // Dequeue a vertex from the queue
+        int u = queue[front++];
+
+        // Add the dequeued vertex to the topological order
+        topOrder[index++] = u;
+
+        // Reduce the in-degree of all adjacent vertices
+        for (int v = 0; v < n; v++) {
+            if (graph[u][v] == 1) {
+                inDegree[v]--;
+                if (inDegree[v] == 0) {
+                    queue[rear++] = v;
+                }
+            }
+        }
+    }
+
+    // If the topological order doesn't include all vertices, there is a cycle
+    if (index != n) {
+        printf("The graph has a cycle, and topological sorting is not possible.\n");
+        return;
+    }
+
+    // Print the topological order
+    printf("Topological Sort: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", topOrder[i] + 1);  // Convert to 1-based indexing
+    }
+    printf("\n");
+}
+
+int main() {
+    // Input the number of vertices in the graph
+    printf("Enter the number of vertices: ");
+    scanf("%d", &n);
+
+    // Input the adjacency matrix for the graph
+    printf("Enter the adjacency matrix (0 for no edge, 1 for edge):\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    // Initialize in-degree array to 0
+    for (int i = 0; i < n; i++) {
+        inDegree[i] = 0;
+    }
+
+    // Compute in-degree of each vertex
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (graph[i][j] == 1) {
+                inDegree[j]++;
+            }
+        }
+    }
+
+    // Call the function to perform topological sorting
+    topologicalSort();
+
+    return 0;
+}
+
+********** Q.2) Write a program to solve N Queens Problem using Backtracking. 
+
+#include <stdio.h>
+#include <stdbool.h>
+
+#define N 8  // Change N for different sizes of the board
+
+int board[N][N];  // Chessboard representation
+
+// Function to print the current configuration of the board
+void printBoard() {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            if (board[i][j] == 1) {
+                printf(" Q ");
+            } else {
+                printf(" . ");
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+// Function to check if it's safe to place a queen at (row, col)
+bool isSafe(int row, int col) {
+    // Check the column for any queen in the same column
+    for (int i = 0; i < row; i++) {
+        if (board[i][col] == 1) {
+            return false;
+        }
+    }
+
+    // Check upper-left diagonal for any queen
+    for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+        if (board[i][j] == 1) {
+            return false;
+        }
+    }
+
+    // Check upper-right diagonal for any queen
+    for (int i = row - 1, j = col + 1; i >= 0 && j < N; i--, j++) {
+        if (board[i][j] == 1) {
+            return false;
+        }
+    }
+
+    return true;  // It's safe to place the queen
+}
+
+// Function to solve N Queens problem using backtracking
+bool solveNQueens(int row) {
+    // If all queens are placed, return true
+    if (row >= N) {
+        return true;
+    }
+
+    // Try placing the queen in each column of the current row
+    for (int col = 0; col < N; col++) {
+        if (isSafe(row, col)) {
+            board[row][col] = 1;  // Place the queen
+
+            // Recur to place the queen in the next row
+            if (solveNQueens(row + 1)) {
+                return true;
+            }
+
+            // If placing queen in (row, col) doesn't lead to a solution, backtrack
+            board[row][col] = 0;  // Remove the queen (backtrack)
+        }
+    }
+
+    return false;  // No safe position found for this row
+}
+
+int main() {
+    // Initialize the board with 0 (empty spaces)
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            board[i][j] = 0;
+        }
+    }
+
+    // Solve the N Queens problem and print the board configuration
+    if (solveNQueens(0)) {
+        printf("Solution found! Here is the board configuration:\n");
+        printBoard();  // Display the solution
+    } else {
+        printf("No solution exists for the N Queens problem.\n");
+    }
+
+    return 0;
+}
+
