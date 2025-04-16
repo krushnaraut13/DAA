@@ -1,0 +1,948 @@
+Slip 1=================
+Q.1) Write an application to create a splash screen. 
+
+(Inside res/layout/ folder)
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:gravity="center">
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/ic_launcher_foreground"
+        android:layout_centerInParent="true"/>
+    
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome to My App"
+        android:textSize="18sp"
+        android:layout_below="@id/logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
+
+</RelativeLayout>
+
+
+package com.example.splashscreen;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class SplashActivity extends AppCompatActivity {
+
+    private static final int SPLASH_TIME_OUT = 3000; // 3 seconds
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_splash);
+
+        new Handler().postDelayed(() -> {
+            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish(); // Close splash screen
+        }, SPLASH_TIME_OUT);
+    }
+}
+
+
+package com.example.splashscreen;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
+}
+
+
+<application
+    android:allowBackup="true"
+    android:label="@string/app_name"
+    android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+    
+    <activity android:name=".MainActivity" />
+    <activity android:name=".SplashActivity">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
+        </intent-filter>
+    </activity>
+</application>
+
+
+Q.2) Create table Student (roll_no, name, address, percentage). Create Application 
+for performing the following operation on the table. (Using SQLite database). 
+i] 
+ii] 
+Insert record of 5 new student details. 
+Show all the student details.
+
+public class Student {
+    int rollNo;
+    String name;
+    String address;
+    float percentage;
+
+    public Student(int rollNo, String name, String address, float percentage) {
+        this.rollNo = rollNo;
+        this.name = name;
+        this.address = address;
+        this.percentage = percentage;
+    }
+}
+
+
+package com.example.studentdb;
+
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.content.ContentValues;
+import android.database.Cursor;
+
+import java.util.ArrayList;
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+
+    public static final String DATABASE_NAME = "StudentDB";
+    public static final int DATABASE_VERSION = 1;
+
+    public static final String TABLE_NAME = "Student";
+    public static final String COL_ROLL = "roll_no";
+    public static final String COL_NAME = "name";
+    public static final String COL_ADDRESS = "address";
+    public static final String COL_PERCENT = "percentage";
+
+    public DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String createTable = "CREATE TABLE " + TABLE_NAME + "(" +
+                COL_ROLL + " INTEGER PRIMARY KEY, " +
+                COL_NAME + " TEXT, " +
+                COL_ADDRESS + " TEXT, " +
+                COL_PERCENT + " REAL)";
+        db.execSQL(createTable);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVer, int newVer) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        onCreate(db);
+    }
+
+    public void insertStudent(Student student) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_ROLL, student.rollNo);
+        values.put(COL_NAME, student.name);
+        values.put(COL_ADDRESS, student.address);
+        values.put(COL_PERCENT, student.percentage);
+        db.insert(TABLE_NAME, null, values);
+        db.close();
+    }
+
+    public ArrayList<Student> getAllStudents() {
+        ArrayList<Student> studentList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Student s = new Student(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getFloat(3)
+                );
+                studentList.add(s);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return studentList;
+    }
+}
+
+
+package com.example.studentdb;
+
+import android.os.Bundle;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity {
+
+    TextView studentText;
+    DatabaseHelper dbHelper;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        studentText = findViewById(R.id.studentText);
+        dbHelper = new DatabaseHelper(this);
+
+        // i] Insert 5 records
+        dbHelper.insertStudent(new Student(1, "Ravi", "Pune", 78.5f));
+        dbHelper.insertStudent(new Student(2, "Neha", "Mumbai", 82.3f));
+        dbHelper.insertStudent(new Student(3, "Amit", "Nagpur", 69.7f));
+        dbHelper.insertStudent(new Student(4, "Sara", "Nashik", 88.1f));
+        dbHelper.insertStudent(new Student(5, "John", "Kolhapur", 91.4f));
+
+        // ii] Display all student records
+        ArrayList<Student> list = dbHelper.getAllStudents();
+        StringBuilder builder = new StringBuilder();
+        for (Student s : list) {
+            builder.append("Roll No: ").append(s.rollNo)
+                    .append("\nName: ").append(s.name)
+                    .append("\nAddress: ").append(s.address)
+                    .append("\nPercentage: ").append(s.percentage)
+                    .append("\n\n");
+        }
+
+        studentText.setText(builder.toString());
+    }
+}
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/studentText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:padding="16dp" />
+</ScrollView>
+
+
+Slip 2============
+Q.1) Create an application that allows the user to enter a number in the textbox. 
+Check whether the number in the textbox is perfect number or not. Print the 
+message using Toast control. 
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <EditText
+        android:id="@+id/num1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter first number"
+        android:inputType="numberDecimal" />
+
+    <EditText
+        android:id="@+id/num2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter second number"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="10dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/addButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+" />
+
+        <Button
+            android:id="@+id/subButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-" 
+            android:layout_marginLeft="10dp"/>
+
+        <Button
+            android:id="@+id/mulButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="*" 
+            android:layout_marginLeft="10dp"/>
+
+        <Button
+            android:id="@+id/divButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="/"
+            android:layout_marginLeft="10dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/resultText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Result: "
+        android:textSize="18sp"
+        android:layout_marginTop="20dp" />
+</LinearLayout>
+
+
+package com.example.calculator;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    EditText num1, num2;
+    TextView resultText;
+    Button addButton, subButton, mulButton, divButton;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        num1 = findViewById(R.id.num1);
+        num2 = findViewById(R.id.num2);
+        resultText = findViewById(R.id.resultText);
+
+        addButton = findViewById(R.id.addButton);
+        subButton = findViewById(R.id.subButton);
+        mulButton = findViewById(R.id.mulButton);
+        divButton = findViewById(R.id.divButton);
+
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performOperation("add");
+            }
+        });
+
+        subButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performOperation("subtract");
+            }
+        });
+
+        mulButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performOperation("multiply");
+            }
+        });
+
+        divButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performOperation("divide");
+            }
+        });
+    }
+
+    private void performOperation(String operation) {
+        try {
+            double num1Val = Double.parseDouble(num1.getText().toString());
+            double num2Val = Double.parseDouble(num2.getText().toString());
+
+            double result = 0;
+
+            switch (operation) {
+                case "add":
+                    result = num1Val + num2Val;
+                    break;
+                case "subtract":
+                    result = num1Val - num2Val;
+                    break;
+                case "multiply":
+                    result = num1Val * num2Val;
+                    break;
+                case "divide":
+                    if (num2Val == 0) {
+                        Toast.makeText(this, "Cannot divide by zero", Toast.LENGTH_SHORT).show();
+                        return;
+                    } else {
+                        result = num1Val / num2Val;
+                    }
+                    break;
+            }
+
+            resultText.setText("Result: " + result);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Please enter valid numbers", Toast.LENGTH_SHORT).show();
+        }
+    }
+}
+
+
+Slip 3=================
+Q.1) Create an application that allows the user to enter a number in the textbox. 
+Check whether the number in the textbox is Armstrong or not. Print the message 
+accordingly in the label control. 
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/numberInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter a number"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/checkButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Check Armstrong"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/resultLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Result will be shown here"
+        android:textSize="18sp"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>
+
+
+package com.example.armstrongchecker;
+
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    EditText numberInput;
+    Button checkButton;
+    TextView resultLabel;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        numberInput = findViewById(R.id.numberInput);
+        checkButton = findViewById(R.id.checkButton);
+        resultLabel = findViewById(R.id.resultLabel);
+
+        checkButton.setOnClickListener(v -> {
+            String input = numberInput.getText().toString().trim();
+
+            if (input.isEmpty()) {
+                resultLabel.setText("Please enter a number");
+                return;
+            }
+
+            int number = Integer.parseInt(input);
+            if (isArmstrong(number)) {
+                resultLabel.setText(number + " is an Armstrong number.");
+            } else {
+                resultLabel.setText(number + " is NOT an Armstrong number.");
+            }
+        });
+    }
+
+    private boolean isArmstrong(int number) {
+        int original = number;
+        int sum = 0;
+        int digits = String.valueOf(number).length();
+
+        while (number > 0) {
+            int digit = number % 10;
+            sum += Math.pow(digit, digits);
+            number /= 10;
+        }
+
+        return sum == original;
+    }
+}
+
+
+Q.2) Create an Android application which examine a phone number entered by a 
+user with the given format. 
+• Area code should be one of the following: 040, 041, 050, 0400, 044 
+• There should 6 - 8 numbers in telephone number (+ area code). 
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+    <EditText
+        android:id="@+id/phoneInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter phone number"
+        android:inputType="phone" />
+
+    <Button
+        android:id="@+id/validateButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Validate"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/resultLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Result will appear here"
+        android:layout_marginTop="16dp"
+        android:textSize="18sp"/>
+</LinearLayout>
+
+
+package com.example.phonevalidator;
+
+import android.os.Bundle;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    EditText phoneInput;
+    Button validateButton;
+    TextView resultLabel;
+
+    final String[] validAreaCodes = {"040", "041", "050", "0400", "044"};
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        phoneInput = findViewById(R.id.phoneInput);
+        validateButton = findViewById(R.id.validateButton);
+        resultLabel = findViewById(R.id.resultLabel);
+
+        validateButton.setOnClickListener(v -> {
+            String input = phoneInput.getText().toString().trim();
+
+            if (isValidPhoneNumber(input)) {
+                resultLabel.setText("✅ Valid Phone Number");
+            } else {
+                resultLabel.setText("❌ Invalid Phone Number");
+            }
+        });
+    }
+
+    private boolean isValidPhoneNumber(String number) {
+        for (String code : validAreaCodes) {
+            if (number.startsWith(code)) {
+                int length = number.length();
+                return length >= 6 && length <= 8;
+            }
+        }
+        return false;
+    }
+}
+
+Slip 4 =================
+Q.1) Construct image switcher using setFactory(). 
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:gravity="center">
+
+    <ImageSwitcher
+        android:id="@+id/imageSwitcher"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/nextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Next Image" />
+</LinearLayout>
+
+
+package com.example.imageswitcherdemo;
+
+import android.os.Bundle;
+import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Animation;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    ImageSwitcher imageSwitcher;
+    Button nextButton;
+    int[] images = {R.drawable.img1, R.drawable.img2, R.drawable.img3};
+    int currentIndex = 0;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        imageSwitcher = findViewById(R.id.imageSwitcher);
+        nextButton = findViewById(R.id.nextButton);
+
+        // Set factory to create ImageViews
+        imageSwitcher.setFactory(() -> {
+            ImageView imgView = new ImageView(getApplicationContext());
+            imgView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            imgView.setLayoutParams(new ImageSwitcher.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
+            return imgView;
+        });
+
+        // Add animation
+        Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
+        Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
+        imageSwitcher.setInAnimation(in);
+        imageSwitcher.setOutAnimation(out);
+
+        // Set first image
+        imageSwitcher.setImageResource(images[currentIndex]);
+
+        // On next button click
+        nextButton.setOnClickListener(v -> {
+            currentIndex = (currentIndex + 1) % images.length;
+            imageSwitcher.setImageResource(images[currentIndex]);
+        });
+    }
+}
+
+Q.2) Write a program to search a specific location on Google Map. 
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/locationInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter location to search"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/searchButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search in Google Maps"
+        android:layout_marginTop="16dp" />
+</LinearLayout>
+
+
+package com.example.mapsearch;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    EditText locationInput;
+    Button searchButton;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        locationInput = findViewById(R.id.locationInput);
+        searchButton = findViewById(R.id.searchButton);
+
+        searchButton.setOnClickListener(v -> {
+            String location = locationInput.getText().toString().trim();
+            if (!location.isEmpty()) {
+                Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + Uri.encode(location));
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+
+                if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(mapIntent);
+                } else {
+                    Toast.makeText(this, "Google Maps is not installed!", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Please enter a location", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+}
+
+
+Slip 5===============
+Q.1) Java Android Program to Demonstrate Alert Dialog Box. 
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/alertButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Alert Dialog" />
+</LinearLayout>package com.example.alertdialogdemo;
+
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    Button alertButton;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        alertButton = findViewById(R.id.alertButton);
+
+        alertButton.setOnClickListener(v -> showAlertDialog());
+    }
+
+    private void showAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Confirmation");
+        builder.setMessage("Are you sure you want to continue?");
+
+        builder.setPositiveButton("Yes", (dialog, which) ->
+                Toast.makeText(getApplicationContext(), "You clicked Yes", Toast.LENGTH_SHORT).show());
+
+        builder.setNegativeButton("No", (dialog, which) ->
+                Toast.makeText(getApplicationContext(), "You clicked No", Toast.LENGTH_SHORT).show());
+
+        builder.setNeutralButton("Cancel", (dialog, which) ->
+                Toast.makeText(getApplicationContext(), "You clicked Cancel", Toast.LENGTH_SHORT).show());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+}
+
+
+Q.2) Create an Android application which will ask the user to input his / her name. 
+A message should display the two items concatenated in a label. Change the format 
+of the label using radio buttons and check boxes for selection. The user can make 
+the label text bold, underlined or italic as well as change its color. Also include 
+buttons to display the message in the label, clear the text boxes as well as label. 
+Finally exit. 
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:gravity="center">
+
+    <EditText
+        android:id="@+id/nameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter your name" />
+
+    <RadioGroup
+        android:id="@+id/styleGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/boldRadio"
+            android:text="Bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/italicRadio"
+            android:text="Italic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/underlineRadio"
+            android:text="Underline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RadioGroup>
+
+    <CheckBox
+        android:id="@+id/redColorCheckBox"
+        android:text="Red Text Color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <CheckBox
+        android:id="@+id/blueColorCheckBox"
+        android:text="Blue Text Color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/showButton"
+        android:text="Show Message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/clearButton"
+        android:text="Clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/exitButton"
+        android:text="Exit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/resultLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your message will appear here"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"/>
+</LinearLayout>
+
+
+package com.example.textformatter;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    EditText nameInput;
+    RadioGroup styleGroup;
+    RadioButton boldRadio, italicRadio, underlineRadio;
+    CheckBox redColorCheckBox, blueColorCheckBox;
+    Button showButton, clearButton, exitButton;
+    TextView resultLabel;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Initialize views
+        nameInput = findViewById(R.id.nameInput);
+        styleGroup = findViewById(R.id.styleGroup);
+        boldRadio = findViewById(R.id.boldRadio);
+        italicRadio = findViewById(R.id.italicRadio);
+        underlineRadio = findViewById(R.id.underlineRadio);
+        redColorCheckBox = findViewById(R.id.redColorCheckBox);
+        blueColorCheckBox = findViewById(R.id.blueColorCheckBox);
+        showButton = findViewById(R.id.showButton);
+        clearButton = findViewById(R.id.clearButton);
+        exitButton = findViewById(R.id.exitButton);
+        resultLabel = findViewById(R.id.resultLabel);
+
+        // Show message button
+        showButton.setOnClickListener(v -> showMessage());
+
+        // Clear button
+        clearButton.setOnClickListener(v -> clearFields());
+
+        // Exit button
+        exitButton.setOnClickListener(v -> finish());
+    }
+
+    private void showMessage() {
+        String name = nameInput.getText().toString();
+        String message = "Hello, " + name;
+
+        // Set text styles
+        int selectedStyle = styleGroup.getCheckedRadioButtonId();
+        if (selectedStyle == boldRadio.getId()) {
+            resultLabel.setTypeface(null, android.graphics.Typeface.BOLD);
+        } else if (selectedStyle == italicRadio.getId()) {
+            resultLabel.setTypeface(null, android.graphics.Typeface.ITALIC);
+        } else if (selectedStyle == underlineRadio.getId()) {
+            resultLabel.setPaintFlags(resultLabel.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
+        } else {
+            resultLabel.setTypeface(null, android.graphics.Typeface.NORMAL);
+        }
+
+        // Set text color
+        if (redColorCheckBox.isChecked()) {
+            resultLabel.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+        } else if (blueColorCheckBox.isChecked()) {
+            resultLabel.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
+        } else {
+            resultLabel.setTextColor(getResources().getColor(android.R.color.black));
+        }
+
+        // Display the message
+        resultLabel.setText(message);
+    }
+
+    private void clearFields() {
+        nameInput.setText("");
+        resultLabel.setText("Your message will appear here");
+        styleGroup.clearCheck();
+        redColorCheckBox.setChecked(false);
+        blueColorCheckBox.setChecked(false);
+    }
+}
+
